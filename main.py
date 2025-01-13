@@ -37,8 +37,8 @@ def retrieve_phone_code(driver) -> str:
 
 
 class UrbanRoutesPage:
-    from_field = (By.ID, 'from')
-    to_field = (By.ID, 'to')
+    from_field_locator = (By.ID, 'from')
+    to_field_locator = (By.ID, 'to')
     DEBUG_TIMEOUT = 2
 
     def __init__(self, driver, wait_timeout=5):
@@ -46,16 +46,16 @@ class UrbanRoutesPage:
         self.wait = WebDriverWait(self.driver, wait_timeout)
 
     def set_from(self, from_address):
-        self.wait.until(EC.visibility_of_element_located(self.from_field)).send_keys(from_address)
+        self.wait.until(EC.visibility_of_element_located(self.from_field_locator)).send_keys(from_address)
 
     def set_to(self, to_address):
-        self.wait.until(EC.visibility_of_element_located(self.to_field)).send_keys(to_address)
+        self.wait.until(EC.visibility_of_element_located(self.to_field_locator)).send_keys(to_address)
 
     def get_from(self):
-        return  self.wait.until(EC.visibility_of_element_located(self.from_field)).get_property('value')
+        return  self.wait.until(EC.visibility_of_element_located(self.from_field_locator)).get_property('value')
 
     def get_to(self):
-        return  self.wait.until(EC.visibility_of_element_located(self.to_field)).get_property('value')
+        return  self.wait.until(EC.visibility_of_element_located(self.to_field_locator)).get_property('value')
 
     def set_route(self, address_from, address_to):
         self.set_from(address_from)
