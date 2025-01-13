@@ -1,8 +1,10 @@
+import time
+
 import data
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
@@ -37,21 +39,29 @@ def retrieve_phone_code(driver) -> str:
 class UrbanRoutesPage:
     from_field = (By.ID, 'from')
     to_field = (By.ID, 'to')
+    DEBUG_TIMEOUT = 2
 
-    def __init__(self, driver):
+    def __init__(self, driver, wait_timeout=5):
         self.driver = driver
+        self.wait = WebDriverWait(self.driver, wait_timeout)
 
     def set_from(self, from_address):
-        self.driver.find_element(*self.from_field).send_keys(from_address)
+        self.wait.until(EC.visibility_of_element_located(self.from_field)).send_keys(from_address)
 
     def set_to(self, to_address):
-        self.driver.find_element(*self.to_field).send_keys(to_address)
+        self.wait.until(EC.visibility_of_element_located(self.to_field)).send_keys(to_address)
 
     def get_from(self):
-        return self.driver.find_element(*self.from_field).get_property('value')
+        return  self.wait.until(EC.visibility_of_element_located(self.from_field)).get_property('value')
 
     def get_to(self):
-        return self.driver.find_element(*self.to_field).get_property('value')
+        return  self.wait.until(EC.visibility_of_element_located(self.to_field)).get_property('value')
+
+    def set_route(self, address_from, address_to):
+        self.set_from(address_from)
+        time.sleep(self.DEBUG_TIMEOUT)
+        self.set_to(address_to)
+        time.sleep(self.DEBUG_TIMEOUT)
 
 
 
@@ -62,19 +72,21 @@ class TestUrbanRoutes:
     @classmethod
     def setup_class(cls):
         # no lo modifiques, ya que necesitamos un registro adicional habilitado para recuperar el código de confirmación del teléfono
-        from selenium.webdriver import DesiredCapabilities
-        capabilities = DesiredCapabilities.CHROME
-        capabilities["goog:loggingPrefs"] = {'performance': 'ALL'}
-        cls.driver = webdriver.Chrome(desired_capabilities=capabilities)
+        from selenium.webdriver.chrome.options import Options as ChromeOptions
+        options = ChromeOptions()
+        options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
+        cls.driver = webdriver.Chrome(options=options)
 
     def test_set_route(self):
+        self.driver.maximize_window()
         self.driver.get(data.urban_routes_url)
-        routes_page = UrbanRoutesPage(self.driver)
+        routes_page = UrbanRoutesPage(self.driver, 5)
         address_from = data.address_from
         address_to = data.address_to
         routes_page.set_route(address_from, address_to)
         assert routes_page.get_from() == address_from
         assert routes_page.get_to() == address_to
+
 
 
     @classmethod
