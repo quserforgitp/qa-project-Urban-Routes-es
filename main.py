@@ -39,7 +39,15 @@ def retrieve_phone_code(driver) -> str:
 class UrbanRoutesPage:
     from_field_locator = (By.ID, 'from')
     to_field_locator = (By.ID, 'to')
-    DEBUG_TIMEOUT = 2
+    call_a_taxi_btn_locator = (By.XPATH, '//button[@type="button" and text()="Pedir un taxi"]')
+    comfort_tariff_card_locator = (By.XPATH, '//img[@alt="Comfort"]')
+
+    #DEBUG
+    DEBUG_TIMEOUT = 1
+    
+    #DEBUG
+    def wait_for_visual_review(self):
+        time.sleep(self.DEBUG_TIMEOUT)
 
     def __init__(self, driver, wait_timeout=5):
         self.driver = driver
@@ -59,9 +67,17 @@ class UrbanRoutesPage:
 
     def set_route(self, address_from, address_to):
         self.set_from(address_from)
-        time.sleep(self.DEBUG_TIMEOUT)
+        self.wait_for_visual_review()
         self.set_to(address_to)
-        time.sleep(self.DEBUG_TIMEOUT)
+        self.wait_for_visual_review()
+
+    def click_on_call_a_taxi_btn(self):
+        self.wait.until(EC.visibility_of_element_located(self.call_a_taxi_btn_locator)).click()
+        self.wait_for_visual_review()
+
+    def click_on_comfort_tariff_card(self):
+        self.wait.until(EC.visibility_of_element_located(self.comfort_tariff_card_locator)).click()
+        self.wait_for_visual_review()
 
 
 
@@ -87,7 +103,13 @@ class TestUrbanRoutes:
         assert routes_page.get_from() == address_from
         assert routes_page.get_to() == address_to
 
-
+    def test_call_a_taxi(self):
+        self.driver.maximize_window()
+        self.driver.get(data.urban_routes_url)
+        routes_page = UrbanRoutesPage(driver=self.driver, wait_timeout=5)
+        routes_page.set_route(data.address_from, data.address_to)
+        routes_page.click_on_call_a_taxi_btn()
+        routes_page.click_on_comfort_tariff_card()
 
     @classmethod
     def teardown_class(cls):
