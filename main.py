@@ -41,17 +41,11 @@ class UrbanRoutesPage:
     to_field_locator = (By.ID, 'to')
     call_a_taxi_btn_locator = (By.XPATH, '//button[@type="button" and text()="Pedir un taxi"]')
     comfort_tariff_card_locator = (By.XPATH, '//img[@alt="Comfort"]')
-
-    #DEBUG
-    DEBUG_TIMEOUT = 1
     
-    #DEBUG
-    def wait_for_visual_review(self):
-        time.sleep(self.DEBUG_TIMEOUT)
-
-    def __init__(self, driver, wait_timeout=5):
+    def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
         self.driver = driver
-        self.wait = WebDriverWait(self.driver, wait_timeout)
+        self.wait = WebDriverWait(self.driver, search_element_timeout)
+        self.VISUAL_REVIEW_TIMEOUT = visual_review_timeout
 
     def set_from(self, from_address):
         self.wait.until(EC.visibility_of_element_located(self.from_field_locator)).send_keys(from_address)
@@ -92,6 +86,9 @@ class UrbanRoutesPage:
         self.__scroll_into_element(element_locator)
         self.__click_on_element(element_locator)
 
+    def wait_for_visual_review(self):
+        time.sleep(self.VISUAL_REVIEW_TIMEOUT)
+
 
 class TestUrbanRoutes:
 
@@ -118,7 +115,7 @@ class TestUrbanRoutes:
     def test_call_a_taxi(self):
         self.driver.maximize_window()
         self.driver.get(data.urban_routes_url)
-        routes_page = UrbanRoutesPage(driver=self.driver, wait_timeout=5)
+        routes_page = UrbanRoutesPage(driver=self.driver, search_element_timeout=5, visual_review_timeout=1)
         routes_page.set_route(data.address_from, data.address_to)
         routes_page.click_on_call_a_taxi_btn()
         routes_page.click_on_comfort_tariff_card()
