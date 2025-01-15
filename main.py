@@ -72,13 +72,25 @@ class UrbanRoutesPage:
         self.wait_for_visual_review()
 
     def click_on_call_a_taxi_btn(self):
-        self.wait.until(EC.visibility_of_element_located(self.call_a_taxi_btn_locator)).click()
-        self.wait_for_visual_review()
+        self.__click_on_element(self.call_a_taxi_btn_locator)
 
     def click_on_comfort_tariff_card(self):
-        self.wait.until(EC.visibility_of_element_located(self.comfort_tariff_card_locator)).click()
+        self.__click_on_element(self.comfort_tariff_card_locator)
+
+
+    # Utility methods
+    def __click_on_element(self, element_locator):
+        self.wait.until(EC.visibility_of_element_located(element_locator)).click()
         self.wait_for_visual_review()
 
+    def __scroll_into_element(self, element_locator):
+        element = self.wait.until(EC.visibility_of_element_located(element_locator))
+        self.driver.execute_script("arguments[0].scrollIntoView();", element)
+        self.wait_for_visual_review()
+
+    def scroll_into_and_click_on_element(self, element_locator):
+        self.__scroll_into_element(element_locator)
+        self.__click_on_element(element_locator)
 
 
 class TestUrbanRoutes:
