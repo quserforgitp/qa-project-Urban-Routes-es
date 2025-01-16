@@ -43,7 +43,9 @@ class UrbanRoutesPage:
     comfort_tariff_card_locator = (By.XPATH, '//img[@alt="Comfort"]')
     phone_number_btn_locator = (By.XPATH, '//div[@class="np-button"]/div[@class="np-text" and text()="Número de teléfono"]')
     phone_number_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="phone" and @placeholder="+1 xxx xxx xx xx"]')
-    phone_number_submit_btn = (By.XPATH, '//button[@type="submit" and text()="Siguiente"]')
+    phone_number_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Siguiente"]')
+    phone_code_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="code" and @placeholder="xxxx"]')
+    phone_code_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Confirmar"]')
 
     
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
@@ -83,7 +85,15 @@ class UrbanRoutesPage:
         self.wait_for_visual_review()
 
     def click_on_submit_phone_number_btn(self):
-        self.__click_on_element(self.phone_number_submit_btn)
+        self.__click_on_element(self.phone_number_submit_btn_locator)
+
+    def click_on_submit_phone_code_btn(self):
+        self.__click_on_element(self.phone_code_submit_btn_locator)
+
+    def set_phone_code(self, phone_code):
+        self.wait.until(EC.visibility_of_element_located(self.phone_code_field_locator)).send_keys(phone_code)
+        self.wait_for_visual_review()
+
 
     # Utility methods
     def __click_on_element(self, element_locator):
@@ -135,6 +145,11 @@ class TestUrbanRoutes:
         routes_page.click_on_phone_number_btn()
         routes_page.set_phone_number(data.phone_number)
         routes_page.click_on_submit_phone_number_btn()
+        phone_code = retrieve_phone_code(self.driver)
+        routes_page.set_phone_code(phone_code)
+        routes_page.click_on_submit_phone_code_btn()
+
+
 
     @classmethod
     def teardown_class(cls):
