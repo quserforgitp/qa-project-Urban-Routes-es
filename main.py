@@ -47,6 +47,15 @@ class UrbanRoutesPage:
     phone_code_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="code" and @placeholder="xxxx"]')
     phone_code_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Confirmar"]')
 
+    payment_method_btn_locator = (By.XPATH, '//div[contains(@class, "pp-button")]/div[@class="pp-text" and text()="Método de pago"]')
+    add_card_btn_locator = (By.XPATH, '//div[@class="pp-title" and text()="Agregar tarjeta"]')
+    card_number_field_locator = (By.XPATH, '//div[@class="card-number-input"]/input[@id="number" and @placeholder="1234 4321 1408"]')
+    card_code_field_locator = (By.XPATH, '//div[@class="card-code-input"]/input[@id="code" and @placeholder="12"]')
+    new_card_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Agregar"]')
+    close_add_card_modal_btn_locator = (By.XPATH, '//div[@class="head" and text()="Método de pago"]/preceding-sibling::button[contains(@class, "close-button")]')
+
+
+
     
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
         self.driver = driver
@@ -92,6 +101,34 @@ class UrbanRoutesPage:
     def set_phone_code(self, phone_code):
         self.__set_element_text(self.phone_code_field_locator, phone_code)
 
+    # ADD CARD
+    def click_on_payment_method_btn(self):
+        self.__click_on_element(self.payment_method_btn_locator)
+
+    def click_on_add_card_btn(self):
+        self.__click_on_element(self.add_card_btn_locator)
+
+    def set_card_number(self, card_number):
+        self.__set_element_text(self.card_number_field_locator, card_number)
+
+    def set_card_code(self, card_code):
+        self.__set_element_text(self.card_code_field_locator, card_code)
+
+    def click_on_submit_new_card_btn(self, send_tab_to_remove_focus=False):
+        if send_tab_to_remove_focus:
+            self.__set_element_text(self.card_code_field_locator, Keys.TAB)
+        self.__click_on_element(self.new_card_submit_btn_locator)
+
+    def click_on_close_add_card_modal_btn(self):
+        self.__click_on_element(self.close_add_card_modal_btn_locator)
+
+    def add_new_card(self, card_number, card_code):
+        self.click_on_payment_method_btn()
+        self.click_on_add_card_btn()
+        self.set_card_number(card_number)
+        self.set_card_code(card_code)
+        self.click_on_submit_new_card_btn(send_tab_to_remove_focus=True)
+        self.click_on_close_add_card_modal_btn()
 
     # Utility methods
     def __click_on_element(self, element_locator):
@@ -156,6 +193,7 @@ class TestUrbanRoutes:
         phone_code = retrieve_phone_code(self.driver)
         routes_page.set_phone_code(phone_code)
         routes_page.click_on_submit_phone_code_btn()
+        routes_page.add_new_card(data.card_number, data.card_code)
 
 
 
