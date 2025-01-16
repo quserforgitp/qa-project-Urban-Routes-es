@@ -41,6 +41,10 @@ class UrbanRoutesPage:
     to_field_locator = (By.ID, 'to')
     call_a_taxi_btn_locator = (By.XPATH, '//button[@type="button" and text()="Pedir un taxi"]')
     comfort_tariff_card_locator = (By.XPATH, '//img[@alt="Comfort"]')
+    phone_number_btn_locator = (By.XPATH, '//div[@class="np-button"]/div[@class="np-text" and text()="Número de teléfono"]')
+    phone_number_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="phone" and @placeholder="+1 xxx xxx xx xx"]')
+    phone_number_submit_btn = (By.XPATH, '//button[@type="submit" and text()="Siguiente"]')
+
     
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
         self.driver = driver
@@ -71,6 +75,15 @@ class UrbanRoutesPage:
     def click_on_comfort_tariff_card(self):
         self.__click_on_element(self.comfort_tariff_card_locator)
 
+    def click_on_phone_number_btn(self):
+        self.scroll_into_and_click_on_element(self.phone_number_btn_locator)
+
+    def set_phone_number(self, phone_number):
+        self.wait.until(EC.visibility_of_element_located(self.phone_number_field_locator)).send_keys(phone_number)
+        self.wait_for_visual_review()
+
+    def click_on_submit_phone_number_btn(self):
+        self.__click_on_element(self.phone_number_submit_btn)
 
     # Utility methods
     def __click_on_element(self, element_locator):
@@ -119,6 +132,9 @@ class TestUrbanRoutes:
         routes_page.set_route(data.address_from, data.address_to)
         routes_page.click_on_call_a_taxi_btn()
         routes_page.click_on_comfort_tariff_card()
+        routes_page.click_on_phone_number_btn()
+        routes_page.set_phone_number(data.phone_number)
+        routes_page.click_on_submit_phone_number_btn()
 
     @classmethod
     def teardown_class(cls):
