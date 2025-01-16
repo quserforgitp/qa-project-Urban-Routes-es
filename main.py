@@ -54,16 +54,16 @@ class UrbanRoutesPage:
         self.VISUAL_REVIEW_TIMEOUT = visual_review_timeout
 
     def set_from(self, from_address):
-        self.wait.until(EC.visibility_of_element_located(self.from_field_locator)).send_keys(from_address)
+        self.__set_element_text(self.from_field_locator, from_address)
 
     def set_to(self, to_address):
-        self.wait.until(EC.visibility_of_element_located(self.to_field_locator)).send_keys(to_address)
+        self.__set_element_text(self.to_field_locator, to_address)
 
     def get_from(self):
-        return  self.wait.until(EC.visibility_of_element_located(self.from_field_locator)).get_property('value')
+        return  self.__get_element_text(self.from_field_locator)
 
     def get_to(self):
-        return  self.wait.until(EC.visibility_of_element_located(self.to_field_locator)).get_property('value')
+        return  self.__get_element_text(self.to_field_locator)
 
     def set_route(self, address_from, address_to):
         self.set_from(address_from)
@@ -81,8 +81,7 @@ class UrbanRoutesPage:
         self.scroll_into_and_click_on_element(self.phone_number_btn_locator)
 
     def set_phone_number(self, phone_number):
-        self.wait.until(EC.visibility_of_element_located(self.phone_number_field_locator)).send_keys(phone_number)
-        self.wait_for_visual_review()
+        self.__set_element_text(self.phone_number_field_locator, phone_number)
 
     def click_on_submit_phone_number_btn(self):
         self.__click_on_element(self.phone_number_submit_btn_locator)
@@ -91,8 +90,7 @@ class UrbanRoutesPage:
         self.__click_on_element(self.phone_code_submit_btn_locator)
 
     def set_phone_code(self, phone_code):
-        self.wait.until(EC.visibility_of_element_located(self.phone_code_field_locator)).send_keys(phone_code)
-        self.wait_for_visual_review()
+        self.__set_element_text(self.phone_code_field_locator, phone_code)
 
 
     # Utility methods
@@ -104,6 +102,16 @@ class UrbanRoutesPage:
         element = self.wait.until(EC.visibility_of_element_located(element_locator))
         self.driver.execute_script("arguments[0].scrollIntoView();", element)
         self.wait_for_visual_review()
+
+    def __set_element_text(self, element_locator, text):
+        self.wait.until(EC.visibility_of_element_located(element_locator)).send_keys(text)
+        self.wait_for_visual_review()
+
+    def __get_element_text(self, element_locator):
+        return (self.wait
+                    .until(EC.visibility_of_element_located(element_locator))
+                    .get_property('value')
+                )
 
     def scroll_into_and_click_on_element(self, element_locator):
         self.__scroll_into_element(element_locator)
