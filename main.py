@@ -136,7 +136,7 @@ class TestUrbanRoutes:
     def test_set_route(self):
         self.driver.maximize_window()
         self.driver.get(data.urban_routes_url)
-        routes_page = UrbanRoutesPage(self.driver, 5)
+        routes_page = UrbanRoutesPage(driver=self.driver, search_element_timeout=5, visual_review_timeout=1)
         address_from = data.address_from
         address_to = data.address_to
         routes_page.set_route(address_from, address_to)
