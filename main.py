@@ -571,7 +571,7 @@ class TestUrbanRoutes:
         # Hace clic en el botón para llamar al vehículo.
         routes_page.click_on_call_the_vehicle_btn()
 
-        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 10 segundos.
+        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 4 segundos.
         modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, start_search_at=2)
 
         assert modal_is_present, 'El modal que muestra la informacion de buscar un taxi deberia aparecer y permanecer mostrandose hasta que el tiempo de espera expire'
@@ -624,7 +624,7 @@ class TestUrbanRoutes:
         # Hace clic en el botón para llamar al vehículo.
         routes_page.click_on_call_the_vehicle_btn()
 
-        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 10 segundos.
+        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 4 segundos.
         modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, start_search_at=2)
 
         assert modal_is_present, 'El modal que muestra la informacion de buscar un taxi deberia aparecer y permanecer mostrandose hasta que el tiempo de espera expire'
