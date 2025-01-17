@@ -49,8 +49,9 @@ class UrbanRoutesPage:
     to_field_locator = (By.ID, 'to')
     call_a_taxi_btn_locator = (By.XPATH, '//button[@type="button" and text()="Pedir un taxi"]')
 
-    # Localizadores de la tarifa comfort
-    comfort_tariff_card_locator = (By.XPATH, '//img[@alt="Comfort"]')
+    # Localizadores de las tarifas
+    comfort_tariff_card_img_locator = (By.XPATH, '//div[@class="tcard-icon"]/img[@alt="Comfort"]')
+    setted_tariff_card_text_locator = (By.XPATH, '//div[@class="tcard active"]//div[@class="tcard-icon"]/following-sibling::div[@class="tcard-title"]')
 
     # Localizadores del campo para agregar numero telefonico
     phone_number_btn_locator = (By.XPATH, '//div[@class="np-button"]/div[@class="np-text" and text()="Número de teléfono"]')
@@ -110,9 +111,12 @@ class UrbanRoutesPage:
     def click_on_call_a_taxi_btn(self):
         self.__click_on_element(self.call_a_taxi_btn_locator)
 
-    # Métodos para hacer click en la tarifa comfort
+    # Métodos para intecarctuar con las tarifas
     def click_on_comfort_tariff_card(self):
-        self.__click_on_element(self.comfort_tariff_card_locator)
+        self.__click_on_element(self.comfort_tariff_card_img_locator)
+    def get_selected_tariff(self):
+        return self.__get_element_text(self.setted_tariff_card_text_locator)
+
 
     # Métodos para agregar el numero de telefono
     def click_on_phone_number_btn(self):
@@ -234,6 +238,9 @@ class TestUrbanRoutes:
 
     driver = None
 
+    SEARCH_TIMEOUT = 5
+    VISUAL_TIME0UT = 0
+
     @classmethod
     def setup_class(cls):
         # no lo modifiques, ya que necesitamos un registro adicional habilitado para recuperar el código de confirmación del teléfono
@@ -242,26 +249,54 @@ class TestUrbanRoutes:
         options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
         cls.driver = webdriver.Chrome(options=options)
 
-    def test_set_route(self):
+    def test_set_route(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         self.driver.maximize_window()
         self.driver.get(data.urban_routes_url)
-        routes_page = UrbanRoutesPage(driver=self.driver, search_element_timeout=5, visual_review_timeout=1)
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
         address_from = data.address_from
         address_to = data.address_to
         routes_page.set_route(address_from, address_to)
         assert routes_page.get_from() == address_from
         assert routes_page.get_to() == address_to
 
-    def test_call_a_taxi(self):
+    def test_set_tariff(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
 
         # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
         self.driver.get(data.urban_routes_url)
 
-        # Inicializa la página de rutas urbanas con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
-        routes_page = UrbanRoutesPage(driver=self.driver, search_element_timeout=5, visual_review_timeout=0)
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
+        # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
+        routes_page.set_route(data.address_from, data.address_to)
 
+        # Hace clic en el botón "Llamar un taxi".
+        routes_page.click_on_call_a_taxi_btn()
+
+        # Hace clic en la tarjeta de tarifa "comfort" para seleccionar el tipo de tarifa.
+        routes_page.click_on_comfort_tariff_card()
+
+        # Recupera el texto de la tarifa seleccionada para compararlo
+        selected_tariff = routes_page.get_selected_tariff()
+
+        assert selected_tariff == 'Comfort', 'La tarifa seleccionada debería ser "Comfort"'
+
+    def test_call_a_taxi(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
+        # Maximiza la ventana del navegador para una mejor visualización de la prueba.
+        self.driver.maximize_window()
+
+        # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
+        self.driver.get(data.urban_routes_url)
+
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
