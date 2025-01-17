@@ -329,7 +329,7 @@ class TestUrbanRoutes:
         assert setted_phone_number == data.phone_number, f'El numero de telefono deberia ser "{data.phone_number}"'
 
     # 4.- Comprobacion de datos introducidos en los campos cuando se agrega una tarjeta nueva
-    def test_credit_card_data(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
+    def test_set_credit_card_data(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
 
