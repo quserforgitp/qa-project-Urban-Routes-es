@@ -57,6 +57,8 @@ class UrbanRoutesPage:
 
     message_for_the_driver_field_locator = (By.XPATH, '//input[@id="comment" and @placeholder="Traiga un aperitivo"]')
 
+    blanket_n_handkerchiefs_checkbox_locator = (By.XPATH, '//div[@class="r-sw-label" and text()="Manta y pañuelos"]/following-sibling::div[@class="r-sw"]//input[@type="checkbox"]/following-sibling::span')
+
 
 
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
@@ -136,6 +138,9 @@ class UrbanRoutesPage:
     def set_message_for_the_driver(self, comment):
         self.__set_element_text(self.message_for_the_driver_field_locator, comment)
 
+    def click_on_checkbox_blanket_and_handkerchiefs(self):
+        self.scroll_into_and_click_on_element(self.blanket_n_handkerchiefs_checkbox_locator)
+
 
     # Utility methods
     def __click_on_element(self, element_locator):
@@ -202,7 +207,13 @@ class TestUrbanRoutes:
         routes_page.click_on_submit_phone_code_btn()
         routes_page.add_new_card(data.card_number, data.card_code)
         routes_page.set_message_for_the_driver(data.message_for_driver)
+        routes_page.click_on_checkbox_blanket_and_handkerchiefs()
 
+    def test_one(self):
+        self.driver.maximize_window()
+        self.driver.get(data.urban_routes_url)
+        routes_page = UrbanRoutesPage(driver=self.driver, search_element_timeout=5, visual_review_timeout=1)
+        routes_page.click_on_checkbox_blanket_and_handkerchiefs()
 
 
     @classmethod
