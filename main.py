@@ -37,6 +37,7 @@ def retrieve_phone_code(driver) -> str:
 
 
 class UrbanRoutesPage:
+    # LOCATORS
     from_field_locator = (By.ID, 'from')
     to_field_locator = (By.ID, 'to')
     call_a_taxi_btn_locator = (By.XPATH, '//button[@type="button" and text()="Pedir un taxi"]')
@@ -54,14 +55,16 @@ class UrbanRoutesPage:
     new_card_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Agregar"]')
     close_add_card_modal_btn_locator = (By.XPATH, '//div[@class="head" and text()="Método de pago"]/preceding-sibling::button[contains(@class, "close-button")]')
 
+    message_for_the_driver_field_locator = (By.XPATH, '//input[@id="comment" and @placeholder="Traiga un aperitivo"]')
 
 
-    
+
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
         self.driver = driver
         self.wait = WebDriverWait(self.driver, search_element_timeout)
         self.VISUAL_REVIEW_TIMEOUT = visual_review_timeout
 
+    # INTERACTORS
     def set_from(self, from_address):
         self.__set_element_text(self.from_field_locator, from_address)
 
@@ -130,6 +133,10 @@ class UrbanRoutesPage:
         self.click_on_submit_new_card_btn(send_tab_to_remove_focus=True)
         self.click_on_close_add_card_modal_btn()
 
+    def set_message_for_the_driver(self, comment):
+        self.__set_element_text(self.message_for_the_driver_field_locator, comment)
+
+
     # Utility methods
     def __click_on_element(self, element_locator):
         self.wait.until(EC.visibility_of_element_located(element_locator)).click()
@@ -194,6 +201,7 @@ class TestUrbanRoutes:
         routes_page.set_phone_code(phone_code)
         routes_page.click_on_submit_phone_code_btn()
         routes_page.add_new_card(data.card_number, data.card_code)
+        routes_page.set_message_for_the_driver(data.message_for_driver)
 
 
 
