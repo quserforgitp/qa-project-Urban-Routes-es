@@ -294,8 +294,8 @@ class TestUrbanRoutes:
         address_from = data.address_from
         address_to = data.address_to
         routes_page.set_route(address_from, address_to)
-        assert routes_page.get_from() == address_from
-        assert routes_page.get_to() == address_to
+        assert routes_page.get_from() == address_from, f'La direccion en el campo "Desde" deberia ser "{address_from}"'
+        assert routes_page.get_to() == address_to, f'La direccion en el campo "Hasta" deberia ser "{address_from}"'
 
     # 2.- Comprobacion de la seleccion de la tarifa 'Comfort'
     def test_set_tariff(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
