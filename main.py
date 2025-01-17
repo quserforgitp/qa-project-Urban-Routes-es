@@ -134,15 +134,19 @@ class UrbanRoutesPage:
     def set_phone_code(self, phone_code):
         self.__set_element_text(self.phone_code_field_locator, phone_code)
 
-    # Métodos para agregar una tarjeta
+    # Métodos para interactuar con los elementos de la tarjeta
     def click_on_payment_method_btn(self):
         self.__click_on_element(self.payment_method_btn_locator)
     def click_on_add_card_btn(self):
         self.__click_on_element(self.add_card_btn_locator)
     def set_card_number(self, card_number):
         self.__set_element_text(self.card_number_field_locator, card_number)
+    def get_card_number(self):
+        return self.__get_element_text(self.card_number_field_locator)
     def set_card_code(self, card_code):
         self.__set_element_text(self.card_code_field_locator, card_code)
+    def get_card_code(self):
+        return self.__get_element_text(self.card_code_field_locator)
     def click_on_submit_new_card_btn(self, send_tab_to_remove_focus=False):
         if send_tab_to_remove_focus:
             self.__set_element_text(self.card_code_field_locator, Keys.TAB)
@@ -324,7 +328,60 @@ class TestUrbanRoutes:
 
         assert setted_phone_number == data.phone_number, f'El numero de telefono deberia ser "{data.phone_number}"'
 
-    # 4.- Comprobacion del proceso completo de llamar un taxi
+    # 4.- Comprobacion de datos introducidos en los campos cuando se agrega una tarjeta nueva
+    def test_credit_card_data(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
+        # Maximiza la ventana del navegador para una mejor visualización de la prueba.
+        self.driver.maximize_window()
+
+        # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
+        self.driver.get(data.urban_routes_url)
+
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
+        # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
+        routes_page.set_route(data.address_from, data.address_to)
+
+        # Hace clic en el botón "Llamar un taxi".
+        routes_page.click_on_call_a_taxi_btn()
+
+        # Hace clic en la tarjeta de tarifa "comfort" para seleccionar el tipo de tarifa.
+        routes_page.click_on_comfort_tariff_card()
+
+        # Hace clic en el botón para ingresar el número de teléfono del pasajero.
+        routes_page.click_on_phone_number_btn()
+
+        # Establece el número de teléfono proporcionado en los datos de prueba.
+        routes_page.set_phone_number(data.phone_number)
+
+        # Hace clic en el botón de envío del número de teléfono.
+        routes_page.click_on_submit_phone_number_btn()
+
+        # Recupera el código de verificación del teléfono desde el sitio web.
+        phone_code = retrieve_phone_code(self.driver)
+
+        # Establece el código de teléfono obtenido anteriormente.
+        routes_page.set_phone_code(phone_code)
+
+        # Hace clic en el botón de envío del código de teléfono.
+        routes_page.click_on_submit_phone_code_btn()
+
+        # Añade una nueva tarjeta de pago
+        routes_page.click_on_payment_method_btn()
+        routes_page.click_on_add_card_btn()
+        routes_page.set_card_number(data.card_number)
+        routes_page.set_card_code(data.card_code)
+
+        # Recupera el numero de la tarjeta que aparece en el campo
+        actual_card_number = routes_page.get_card_number()
+        assert actual_card_number == data.card_number, f'El numero de la tarjeta deberia ser "{data.card_number}"'
+
+        # Recupera el codigo (CVV) de la tarjeta que aparece en el campo
+        actual_card_code = routes_page.get_card_code()
+        assert actual_card_code == data.card_code, f'El codigo (CVV) de la tarjeta deberia ser "{data.card_code}"'
+
+    # .- Comprobacion del proceso completo de llamar un taxi
     def test_call_a_taxi(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
