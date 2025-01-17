@@ -535,16 +535,70 @@ class TestUrbanRoutes:
         # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 10 segundos.
         routes_page.check_if_appears_searching_vehicle_modal(timeout=10)
 
+    # 9.- Comprobacion de que aparece la informacion del conductor en el modal
+    def test_driver_info_appears(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
+        # Maximiza la ventana del navegador para una mejor visualización de la prueba.
+        self.driver.maximize_window()
 
+        # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
+        self.driver.get(data.urban_routes_url)
 
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
+        # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
+        routes_page.set_route(data.address_from, data.address_to)
 
+        # Hace clic en el botón "Llamar un taxi".
+        routes_page.click_on_call_a_taxi_btn()
 
+        # Hace clic en la tarjeta de tarifa "comfort" para seleccionar el tipo de tarifa.
+        routes_page.click_on_comfort_tariff_card()
 
+        # Hace clic en el botón para ingresar el número de teléfono del pasajero.
+        routes_page.click_on_phone_number_btn()
 
+        # Establece el número de teléfono proporcionado en los datos de prueba.
+        routes_page.set_phone_number(data.phone_number)
 
+        # Hace clic en el botón de envío del número de teléfono.
+        routes_page.click_on_submit_phone_number_btn()
 
+        # Recupera el código de verificación del teléfono desde el sitio web.
+        phone_code = retrieve_phone_code(self.driver)
 
-    # .- Comprobacion del proceso completo de llamar un taxi
+        # Establece el código de teléfono obtenido anteriormente.
+        routes_page.set_phone_code(phone_code)
+
+        # Hace clic en el botón de envío del código de teléfono.
+        routes_page.click_on_submit_phone_code_btn()
+
+        # Añade una nueva tarjeta de pago con el número de tarjeta y código proporcionados en los datos de prueba.
+        routes_page.add_new_card(data.card_number, data.card_code)
+
+        # Hace clic en el botón para llamar al vehículo.
+        routes_page.click_on_call_the_vehicle_btn()
+
+        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 10 segundos.
+        routes_page.check_if_appears_searching_vehicle_modal(timeout=10)
+
+        # Espera la información del conductor con un tiempo adicional de 3 segundos.
+        routes_page.wait_for_driver_info(additional_secs=3)
+
+        # Verificación del nombre del conductor
+        driver_name = routes_page.get_driver_name()
+        assert driver_name != '', "El nombre del conductor no debe estar vacío."
+
+        # Verificación de la URL de la imagen del conductor
+        driver_img = routes_page.get_driver_img_url()
+        assert driver_img != '', "La URL de la imagen del conductor no debe estar vacía."
+
+        # Verificación de la calificación del conductor
+        driver_rating = routes_page.get_driver_rating()
+        assert driver_rating != '', "La calificación del conductor no debe estar vacía."
+
+    # 10.- Comprobacion del proceso completo de llamar un taxi
     def test_call_a_taxi(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
