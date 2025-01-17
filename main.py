@@ -61,6 +61,8 @@ class UrbanRoutesPage:
 
     icecream_increase_counter_btn_locator = (By.XPATH, '//div[@class="r-counter-container"]/div[text()="Helado"]/following-sibling::div[@class="r-counter"]//div[@class="counter-plus" and text()="+"]')
 
+    call_the_vehicle_btn_locator = (By.XPATH, '//button[@type="button"]/span[text()="Pedir un taxi"]')
+
 
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
         self.driver = driver
@@ -145,6 +147,9 @@ class UrbanRoutesPage:
     def clicks_on_icecream_increase_counter_btn(self, times=1, clicks_delay=0):
         self.__click_on_element_multiple_times(self.icecream_increase_counter_btn_locator, times, clicks_delay)
 
+    def click_on_call_the_vehicle_btn(self):
+        self.__click_on_element(self.call_the_vehicle_btn_locator)
+
 
     # Utility methods
     def __click_on_element(self, element_locator):
@@ -219,6 +224,7 @@ class TestUrbanRoutes:
         routes_page.set_message_for_the_driver(data.message_for_driver)
         routes_page.click_on_checkbox_blanket_and_handkerchiefs()
         routes_page.clicks_on_icecream_increase_counter_btn(times=2, clicks_delay=1)
+        routes_page.click_on_call_the_vehicle_btn()
 
 
     @classmethod
