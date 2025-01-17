@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
+# Funciones Útiles
 # no modificar
 def retrieve_phone_code(driver) -> str:
     """Este código devuelve un número de confirmación de teléfono y lo devuelve como un string.
@@ -34,7 +35,6 @@ def retrieve_phone_code(driver) -> str:
             raise Exception("No se encontró el código de confirmación del teléfono.\n"
                             "Utiliza 'retrieve_phone_code' solo después de haber solicitado el código en tu aplicación.")
         return code
-
 
 def parse_to_seconds(time_str):
     minutes, seconds = time_str.split(":")
