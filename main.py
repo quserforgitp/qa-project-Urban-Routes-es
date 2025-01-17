@@ -36,6 +36,12 @@ def retrieve_phone_code(driver) -> str:
         return code
 
 
+def parse_to_seconds(time_str):
+    minutes, seconds = time_str.split(":")
+    total_seconds = int(seconds) + int(minutes) * 60
+    return total_seconds
+
+
 class UrbanRoutesPage:
     # LOCATORS
     from_field_locator = (By.ID, 'from')
@@ -64,6 +70,13 @@ class UrbanRoutesPage:
     call_the_vehicle_btn_locator = (By.XPATH, '//button[@type="button"]/span[text()="Pedir un taxi"]')
 
     searching_vehicle_modal_locator = (By.XPATH, '//div[@class="order-body" and .//div[@class="order-header-title" and text()="Buscar automóvil"]]')
+
+    driver_arrival_time_label_locator = (By.XPATH, '//div[@class="order-header-title" and text()="Buscar automóvil"]/following-sibling::div[@class="order-header-time"]')
+
+    # Driver info
+    driver_rating_field_locator = (By.XPATH, '//div[@class="order-buttons"]/div[@class="order-btn-group"]//div[@class="order-btn-rating"]')
+    driver_img_field_locator = (By.XPATH, '//div[@class="order-buttons"]/div[@class="order-btn-group"]//div[@class="order-btn-rating"]/following-sibling::img')
+    driver_name_field_locator = (By.XPATH, '//div[@class="order-buttons"]/div[@class="order-btn-group"]/div[@class="order-button" and ./div[@class="order-btn-rating"]]/following-sibling::div')
 
 
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
@@ -155,6 +168,15 @@ class UrbanRoutesPage:
     def check_if_appears_searching_vehicle_modal(self, timeout):
         self.__check_if_appears_element(self.searching_vehicle_modal_locator, timeout)
 
+    def get_driver_rating(self):
+        return self.__get_element_text(self.driver_rating_field_locator)
+
+    def get_driver_img_url(self):
+        return self.wait.until(EC.visibility_of_element_located(self.driver_img_field_locator)).get_attribute('src')
+
+    def get_driver_name(self):
+        return self.__get_element_text(self.driver_name_field_locator)
+
 
     # Utility methods
     def __click_on_element(self, element_locator):
@@ -171,10 +193,19 @@ class UrbanRoutesPage:
         self.wait_for_visual_review()
 
     def __get_element_text(self, element_locator):
-        return (self.wait
-                    .until(EC.visibility_of_element_located(element_locator))
-                    .get_property('value')
-                )
+        element = self.wait.until(EC.visibility_of_element_located(element_locator))
+
+        text = element.text
+        if text:
+            return text
+
+        text = element.get_property('value')
+
+        if text:
+            return text
+
+        return ""
+
 
     def __click_on_element_multiple_times(self, locator, times=1, clicks_delay=0):
         element = self.wait.until(EC.visibility_of_element_located(locator))
@@ -183,7 +214,7 @@ class UrbanRoutesPage:
             time.sleep(clicks_delay)
 
     def __check_if_appears_element(self, element_locator, timeout=5):
-        WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(element_locator))
+        return WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(element_locator))
 
     def scroll_into_and_click_on_element(self, element_locator):
         self.__scroll_into_element(element_locator)
@@ -191,6 +222,15 @@ class UrbanRoutesPage:
 
     def wait_for_visual_review(self):
         time.sleep(self.VISUAL_REVIEW_TIMEOUT)
+
+    def wait_for_driver_info(self, additional_secs=1):
+        time.sleep(additional_secs)
+
+        time_str = self.__get_element_text(self.driver_arrival_time_label_locator)
+        arrival_time_in_seconds = parse_to_seconds(time_str)
+        time.sleep(arrival_time_in_seconds + additional_secs)
+
+
 
 
 class TestUrbanRoutes:
@@ -218,7 +258,7 @@ class TestUrbanRoutes:
     def test_call_a_taxi(self):
         self.driver.maximize_window()
         self.driver.get(data.urban_routes_url)
-        routes_page = UrbanRoutesPage(driver=self.driver, search_element_timeout=5, visual_review_timeout=1)
+        routes_page = UrbanRoutesPage(driver=self.driver, search_element_timeout=5, visual_review_timeout=0)
         routes_page.set_route(data.address_from, data.address_to)
         routes_page.click_on_call_a_taxi_btn()
         routes_page.click_on_comfort_tariff_card()
@@ -231,10 +271,23 @@ class TestUrbanRoutes:
         routes_page.add_new_card(data.card_number, data.card_code)
         routes_page.set_message_for_the_driver(data.message_for_driver)
         routes_page.click_on_checkbox_blanket_and_handkerchiefs()
-        routes_page.clicks_on_icecream_increase_counter_btn(times=2, clicks_delay=1)
+        routes_page.clicks_on_icecream_increase_counter_btn(times=2, clicks_delay=0)
         routes_page.click_on_call_the_vehicle_btn()
         routes_page.check_if_appears_searching_vehicle_modal(timeout=10)
 
+        routes_page.wait_for_driver_info(3)
+
+        # Verificación del nombre del conductor
+        driver_name = routes_page.get_driver_name()
+        assert driver_name != '', "El nombre del conductor no debe estar vacío."
+
+        # Verificación de la URL de la imagen del conductor
+        driver_img = routes_page.get_driver_img_url()
+        assert driver_img != '', "La URL de la imagen del conductor no debe estar vacía."
+
+        # Verificación de la calificación del conductor
+        driver_rating = routes_page.get_driver_rating()
+        assert driver_rating != '', "La calificación del conductor no debe estar vacía."
 
 
 
