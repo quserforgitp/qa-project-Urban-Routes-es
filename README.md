@@ -17,7 +17,7 @@ Asegúrate de tener instaladas las siguientes herramientas:
 - **Python >= 3.x**
 - [Librerías necesarias](#my-custom-anchor-instalacion) (`selenium` y `pytest`)
 - Archivo `main.py` para manejar solicitudes HTTP.
-- Archivo `data.py` que contiene un diccionario con la estructura base del cuerpo de la solicitud y headers para las requests.
+- Archivo `data.py` datos de prueba y direcciones URL
 
 ---
 
@@ -43,8 +43,8 @@ Si quieres clonar este repositorio directamente desde PyCharm, te puede interesa
 
 *O bien, puedes utilizar directamente la linea de comandos*
    ```bash
-   git clone [https://github.com/quserforgitp/<nombre-del-repositorio-aqui>.git]
-   cd <nombre-del-repositorio-aqui>
+   git clone https://github.com/quserforgitp/qa-project-Urban-Routes-es.git
+   cd qa-project-Urban-Routes-es
    ```
    
 **2. Instala las dependencias requeridas:**
@@ -76,22 +76,20 @@ Si quieres instalar las dependencias desde `requirements.txt` directamente en Py
 | `test_call_a_taxi`                                              | Verificar el proceso completo de llamar un taxi, desde la selección de la tarifa hasta la confirmación.  | El proceso debe completarse correctamente con la visualización de la información del conductor.                   |
 
 
-
-
 ---
 
 ## ▶️ **Ejecución de las Pruebas**  
 > [!WARNING]
 > Recuerda actualizar la URL de la app en el archivo `data.py` en la variable `urban_routes_url` para que las pruebas se ejecuten correctamente
 
-![image](https://github.com/user-attachments/assets/4bab705c-b81f-402a-a5f9-077082fcbd80)
+![image](https://github.com/user-attachments/assets/3016c134-45d1-4d67-82e6-af2eeecaeead)
 
 
 > [!NOTE]  
 > ✅ Usuarios de PyCharm:
 > Si quieres ejecutar las pruebas directamente en PyCharm, sigue estos pasos
 
-![Ejecutar pruebas desde PyCharm](https://github.com/user-attachments/assets/88215733-faa3-4192-8ad3-21b7600a85ee)
+![ejemplo_ejecucion_pruebas_selenium_pycharm-gif](https://github.com/user-attachments/assets/79673484-adeb-4f23-8d87-30796bfd471f)
 
 
 *O si prefieres tambien las puedes ejecutar utilizando el siguiente comando:*
@@ -104,19 +102,93 @@ python -m pytest main.TestUrbanRoutes
 
 ## 📚 **Explicación del Código**  
 
-### **Funciones Principales**  
-   > **`positive_assert(kit_name)`**
+### **Clase POM UrbanRoutesPage**
+   #### **Resumen**
+   - Esta clase es parte de un modelo de objetos de página (`Page Object Model`) que facilita la interacción con los elementos de la página de rutas urbanas en una aplicación. Se encarga de manejar la entrada de direcciones en los campos de origen y destino, hacer clic en los botones correspondientes, y asegurarse de que los elementos sean visibles antes de realizar cualquier acción. Utiliza tiempos de espera configurables para mejorar la estabilidad de las interacciones, asegurando que todos los elementos estén disponibles para la acción antes de proceder.
 
-   - Verifica que la creación de un kit con el nombre proporcionado en `kit_name` sea exitosa. Valida que el código de estado sea 201 y que el campo `"name"` en la respuesta coincida con el nombre enviado.
 
-   
-### **Funciones Auxiliares**  
+### **Resumen de Funciones Principales**  
 
-   > **`get_create_user_body()`**
+> **`__init__(driver, search_element_timeout=5, visual_review_timeout=3)`**
+- Constructor de la clase, inicializa el controlador (`driver`) y establece los tiempos de espera para recuperar elementos de la página y para inspección visual.
+  
+> **`set_from(from_address)`**
+- Establece la dirección de origen en el formulario de la página. Recibe la dirección de origen como parámetro y la asigna al campo correspondiente en el formulario.
 
-   - Devuelve una copia del cuerpo de solicitud necesario para la creación de un usuario.
+> **`set_to(to_address)`**
+- Establece la dirección de destino en el formulario de la página. Recibe la dirección de destino como parámetro y la asigna al campo correspondiente en el formulario.
 
-   
+> **`__click_on_element(element_locator)`**
+- Realiza un clic en el elemento indicado por su localizador (`element_locator`). Espera hasta que el elemento esté visible y luego lo hace clic. Después, espera la inspección visual.
+
+> **`__scroll_into_element(element_locator)`**
+- Desplaza la página hasta que el elemento indicado por su localizador (`element_locator`) sea visible. Luego, realiza una espera para la inspección visual.
+
+---
+
+### **Resumen de Funciones Auxiliares**  
+
+> **`__set_element_text(element_locator, text)`**
+- Método privado que establece el texto en un campo de texto determinado por el `element_locator`. Utiliza la espera para asegurarse de que el campo esté visible antes de enviar el texto.
+
+> **`wait_for_visual_review()`**
+- Método auxiliar que espera el tiempo configurado para la revisión visual, asegurándose de que la página esté lista para ser revisada visualmente después de una acción.
+
+---
+
+### **Algunos Localizadores de Elementos**  
+
+> **`from_field_locator`**
+- Localizador para el campo de "Desde" en el formulario. Usualmente se identifica por el ID `'from'`.
+
+> **`to_field_locator`**
+- Localizador para el campo de "Hasta" en el formulario. Usualmente se identifica por el ID `'to'`. 
+
+---
+
+### **Clase de Tests TestUrbanRoutes**
+   #### **Resumen**
+   - La clase `TestUrbanRoutes` implementa pruebas para verificar la funcionalidad principal de la página de rutas urbanas. Usa un enfoque sistemático para:
+   - Establecer y verificar las direcciones de origen y destino.
+   - Validar la selección de una tarifa específica, garantizando la interacción correcta con los elementos de la interfaz de usuario.
+   - Las pruebas aprovechan un controlador configurado con capacidades avanzadas, asegurando robustez y flexibilidad en el entorno de prueba. Además, las aserciones claras y los mensajes de error detallados facilitan la depuración de problemas en caso de fallas.
+
+
+
+#### **Resumen de Funciones Principales**  
+
+> **`setup_class(cls)`**
+- Método de configuración de clase para inicializar el controlador de Selenium antes de ejecutar las pruebas.  
+- Usa opciones de Chrome para habilitar un registro de rendimiento detallado (`performance`) que facilita la captura de información adicional, como códigos de confirmación.  
+- Se ejecuta una vez por clase y establece un controlador (`driver`) para ser usado por las pruebas.
+
+> **`test_set_route(search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT)`**
+- Comprueba que los campos de entrada de direcciones en la página permiten establecer correctamente una ruta.  
+- Pasos principales:
+  1. Maximiza la ventana del navegador.
+  2. Navega a la página de rutas urbanas.
+  3. Usa la clase `UrbanRoutesPage` para establecer las direcciones "Desde" y "Hasta" usando valores de prueba (`address_from` y `address_to`).
+  4. Verifica que las direcciones ingresadas coincidan con los valores de prueba, lanzando un mensaje de error si no coinciden.
+
+> **`test_set_tariff(search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT)`**
+- Verifica que se puede seleccionar correctamente la tarifa "Comfort" en la página.  
+- Pasos principales:
+  1. Maximiza la ventana del navegador.
+  2. Abre la página de rutas urbanas.
+  3. Limpia el almacenamiento local para evitar configuraciones previas.
+  4. Establece una ruta con valores de prueba.
+  5. Simula hacer clic en "Llamar un taxi" y selecciona la tarjeta de tarifa "Comfort".
+  6. Recupera la tarifa seleccionada y asegura que sea "Comfort". Muestra un mensaje de error si no coincide.
+
+---
+
+### **Resumen de Funciones Auxiliares y Configuración**
+
+> **Variables de Clase**
+- **`driver`**: Controlador de Selenium compartido entre las pruebas.  
+- **`SEARCH_TIMEOUT`**: Tiempo de espera máximo para localizar elementos en la página (por defecto 5 segundos).  
+- **`VISUAL_TIME0UT`**: Tiempo de espera adicional para revisión visual (por defecto 0 segundos).
+
 ---
 
 ## 🛠️ **Extensiones y Mejoras Futuras**
