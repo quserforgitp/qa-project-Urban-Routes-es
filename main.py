@@ -63,6 +63,8 @@ class UrbanRoutesPage:
 
     call_the_vehicle_btn_locator = (By.XPATH, '//button[@type="button"]/span[text()="Pedir un taxi"]')
 
+    searching_vehicle_modal_locator = (By.XPATH, '//div[@class="order-body" and .//div[@class="order-header-title" and text()="Buscar automóvil"]]')
+
 
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
         self.driver = driver
@@ -150,6 +152,9 @@ class UrbanRoutesPage:
     def click_on_call_the_vehicle_btn(self):
         self.__click_on_element(self.call_the_vehicle_btn_locator)
 
+    def check_if_appears_searching_vehicle_modal(self, timeout):
+        self.__check_if_appears_element(self.searching_vehicle_modal_locator, timeout)
+
 
     # Utility methods
     def __click_on_element(self, element_locator):
@@ -176,6 +181,9 @@ class UrbanRoutesPage:
         for _ in range(times):
             element.click()
             time.sleep(clicks_delay)
+
+    def __check_if_appears_element(self, element_locator, timeout=5):
+        WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(element_locator))
 
     def scroll_into_and_click_on_element(self, element_locator):
         self.__scroll_into_element(element_locator)
@@ -225,6 +233,10 @@ class TestUrbanRoutes:
         routes_page.click_on_checkbox_blanket_and_handkerchiefs()
         routes_page.clicks_on_icecream_increase_counter_btn(times=2, clicks_delay=1)
         routes_page.click_on_call_the_vehicle_btn()
+        routes_page.check_if_appears_searching_vehicle_modal(timeout=10)
+
+
+
 
 
     @classmethod
