@@ -43,17 +43,23 @@ def parse_to_seconds(time_str):
 
 
 class UrbanRoutesPage:
-    # LOCATORS
+    # Localizadores de elementos en la página mediante diferentes estrategias
+    # Localizadores del formulario para establecer ruta
     from_field_locator = (By.ID, 'from')
     to_field_locator = (By.ID, 'to')
     call_a_taxi_btn_locator = (By.XPATH, '//button[@type="button" and text()="Pedir un taxi"]')
+
+    # Localizadores de la tarifa comfort
     comfort_tariff_card_locator = (By.XPATH, '//img[@alt="Comfort"]')
+
+    # Localizadores del campo para agregar numero telefonico
     phone_number_btn_locator = (By.XPATH, '//div[@class="np-button"]/div[@class="np-text" and text()="Número de teléfono"]')
     phone_number_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="phone" and @placeholder="+1 xxx xxx xx xx"]')
     phone_number_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Siguiente"]')
     phone_code_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="code" and @placeholder="xxxx"]')
     phone_code_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Confirmar"]')
 
+    # Localizadores del campo para agregar metodo de pago
     payment_method_btn_locator = (By.XPATH, '//div[contains(@class, "pp-button")]/div[@class="pp-text" and text()="Método de pago"]')
     add_card_btn_locator = (By.XPATH, '//div[@class="pp-title" and text()="Agregar tarjeta"]')
     card_number_field_locator = (By.XPATH, '//div[@class="card-number-input"]/input[@id="number" and @placeholder="1234 4321 1408"]')
@@ -61,90 +67,80 @@ class UrbanRoutesPage:
     new_card_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Agregar"]')
     close_add_card_modal_btn_locator = (By.XPATH, '//div[@class="head" and text()="Método de pago"]/preceding-sibling::button[contains(@class, "close-button")]')
 
+    # Localizadores del campo para agregar un comentario para el conductor
     message_for_the_driver_field_locator = (By.XPATH, '//input[@id="comment" and @placeholder="Traiga un aperitivo"]')
 
+    # Localizadores de los checkbox y los contadores para pedir mantas, panuelos y helados
     blanket_n_handkerchiefs_checkbox_locator = (By.XPATH, '//div[@class="r-sw-label" and text()="Manta y pañuelos"]/following-sibling::div[@class="r-sw"]//input[@type="checkbox"]/following-sibling::span')
-
     icecream_increase_counter_btn_locator = (By.XPATH, '//div[@class="r-counter-container"]/div[text()="Helado"]/following-sibling::div[@class="r-counter"]//div[@class="counter-plus" and text()="+"]')
 
+    # Localizadores del boton que inicia la busqueda de un conductor
     call_the_vehicle_btn_locator = (By.XPATH, '//button[@type="button"]/span[text()="Pedir un taxi"]')
 
+    # Localizadores del modal que contiene informacion de la busqueda del conductor
     searching_vehicle_modal_locator = (By.XPATH, '//div[@class="order-body" and .//div[@class="order-header-title" and text()="Buscar automóvil"]]')
 
+    # Localizadores para la informacion del conductor
     driver_arrival_time_label_locator = (By.XPATH, '//div[@class="order-header-title" and text()="Buscar automóvil"]/following-sibling::div[@class="order-header-time"]')
-
-    # Driver info
     driver_rating_field_locator = (By.XPATH, '//div[@class="order-buttons"]/div[@class="order-btn-group"]//div[@class="order-btn-rating"]')
     driver_img_field_locator = (By.XPATH, '//div[@class="order-buttons"]/div[@class="order-btn-group"]//div[@class="order-btn-rating"]/following-sibling::img')
     driver_name_field_locator = (By.XPATH, '//div[@class="order-buttons"]/div[@class="order-btn-group"]/div[@class="order-button" and ./div[@class="order-btn-rating"]]/following-sibling::div')
 
-
+    # Constructor de la clase, inicializa el controlador, y establace los tiempos de espera para recuperar elementos de la pagina y para inspeccion visual
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
         self.driver = driver
         self.wait = WebDriverWait(self.driver, search_element_timeout)
         self.VISUAL_REVIEW_TIMEOUT = visual_review_timeout
 
-    # INTERACTORS
+    # Métodos para interactuar con los elementos de la página
+    # Métodos para interactuar con el formulario para establecer la ruta (Desde y Hasta)
     def set_from(self, from_address):
         self.__set_element_text(self.from_field_locator, from_address)
-
     def set_to(self, to_address):
         self.__set_element_text(self.to_field_locator, to_address)
-
     def get_from(self):
         return  self.__get_element_text(self.from_field_locator)
-
     def get_to(self):
         return  self.__get_element_text(self.to_field_locator)
-
     def set_route(self, address_from, address_to):
         self.set_from(address_from)
         self.wait_for_visual_review()
         self.set_to(address_to)
         self.wait_for_visual_review()
-
     def click_on_call_a_taxi_btn(self):
         self.__click_on_element(self.call_a_taxi_btn_locator)
 
+    # Métodos para hacer click en la tarifa comfort
     def click_on_comfort_tariff_card(self):
         self.__click_on_element(self.comfort_tariff_card_locator)
 
+    # Métodos para agregar el numero de telefono
     def click_on_phone_number_btn(self):
         self.scroll_into_and_click_on_element(self.phone_number_btn_locator)
-
     def set_phone_number(self, phone_number):
         self.__set_element_text(self.phone_number_field_locator, phone_number)
-
     def click_on_submit_phone_number_btn(self):
         self.__click_on_element(self.phone_number_submit_btn_locator)
-
     def click_on_submit_phone_code_btn(self):
         self.__click_on_element(self.phone_code_submit_btn_locator)
-
     def set_phone_code(self, phone_code):
         self.__set_element_text(self.phone_code_field_locator, phone_code)
 
-    # ADD CARD
+    # Métodos para agregar una tarjeta
     def click_on_payment_method_btn(self):
         self.__click_on_element(self.payment_method_btn_locator)
-
     def click_on_add_card_btn(self):
         self.__click_on_element(self.add_card_btn_locator)
-
     def set_card_number(self, card_number):
         self.__set_element_text(self.card_number_field_locator, card_number)
-
     def set_card_code(self, card_code):
         self.__set_element_text(self.card_code_field_locator, card_code)
-
     def click_on_submit_new_card_btn(self, send_tab_to_remove_focus=False):
         if send_tab_to_remove_focus:
             self.__set_element_text(self.card_code_field_locator, Keys.TAB)
         self.__click_on_element(self.new_card_submit_btn_locator)
-
     def click_on_close_add_card_modal_btn(self):
         self.__click_on_element(self.close_add_card_modal_btn_locator)
-
     def add_new_card(self, card_number, card_code):
         self.click_on_payment_method_btn()
         self.click_on_add_card_btn()
@@ -153,32 +149,34 @@ class UrbanRoutesPage:
         self.click_on_submit_new_card_btn(send_tab_to_remove_focus=True)
         self.click_on_close_add_card_modal_btn()
 
+    # Métodos para agregar un comentario para el conductor
     def set_message_for_the_driver(self, comment):
         self.__set_element_text(self.message_for_the_driver_field_locator, comment)
 
+    # Métodos para interactuar con el checkbox de manta y panuelos, y el contador de helados
     def click_on_checkbox_blanket_and_handkerchiefs(self):
         self.scroll_into_and_click_on_element(self.blanket_n_handkerchiefs_checkbox_locator)
-
     def clicks_on_icecream_increase_counter_btn(self, times=1, clicks_delay=0):
         self.__click_on_element_multiple_times(self.icecream_increase_counter_btn_locator, times, clicks_delay)
 
+    # Métodos para iniciar la busqueda de un conductor
     def click_on_call_the_vehicle_btn(self):
         self.__click_on_element(self.call_the_vehicle_btn_locator)
 
+    # Métodos para comprobar que el modal de busqueda de vehiculo aparece
     def check_if_appears_searching_vehicle_modal(self, timeout):
         self.__check_if_appears_element(self.searching_vehicle_modal_locator, timeout)
 
+    # Métodos para obtener la informacion del conductor encontrado
     def get_driver_rating(self):
         return self.__get_element_text(self.driver_rating_field_locator)
-
     def get_driver_img_url(self):
         return self.wait.until(EC.visibility_of_element_located(self.driver_img_field_locator)).get_attribute('src')
-
     def get_driver_name(self):
         return self.__get_element_text(self.driver_name_field_locator)
 
 
-    # Utility methods
+    # Metodos auxiliares para interactuar con los elementos de la pagina
     def __click_on_element(self, element_locator):
         self.wait.until(EC.visibility_of_element_located(element_locator)).click()
         self.wait_for_visual_review()
@@ -205,7 +203,6 @@ class UrbanRoutesPage:
             return text
 
         return ""
-
 
     def __click_on_element_multiple_times(self, locator, times=1, clicks_delay=0):
         element = self.wait.until(EC.visibility_of_element_located(locator))
@@ -324,9 +321,6 @@ class TestUrbanRoutes:
         # Verificación de la calificación del conductor
         driver_rating = routes_page.get_driver_rating()
         assert driver_rating != '', "La calificación del conductor no debe estar vacía."
-
-
-
 
     @classmethod
     def teardown_class(cls):
