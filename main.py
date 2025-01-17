@@ -59,6 +59,7 @@ class UrbanRoutesPage:
 
     blanket_n_handkerchiefs_checkbox_locator = (By.XPATH, '//div[@class="r-sw-label" and text()="Manta y pañuelos"]/following-sibling::div[@class="r-sw"]//input[@type="checkbox"]/following-sibling::span')
 
+    icecream_increase_counter_btn_locator = (By.XPATH, '//div[@class="r-counter-container"]/div[text()="Helado"]/following-sibling::div[@class="r-counter"]//div[@class="counter-plus" and text()="+"]')
 
 
     def __init__(self, driver, search_element_timeout=5, visual_review_timeout=3):
@@ -141,6 +142,9 @@ class UrbanRoutesPage:
     def click_on_checkbox_blanket_and_handkerchiefs(self):
         self.scroll_into_and_click_on_element(self.blanket_n_handkerchiefs_checkbox_locator)
 
+    def clicks_on_icecream_increase_counter_btn(self, times=1, clicks_delay=0):
+        self.__click_on_element_multiple_times(self.icecream_increase_counter_btn_locator, times, clicks_delay)
+
 
     # Utility methods
     def __click_on_element(self, element_locator):
@@ -161,6 +165,12 @@ class UrbanRoutesPage:
                     .until(EC.visibility_of_element_located(element_locator))
                     .get_property('value')
                 )
+
+    def __click_on_element_multiple_times(self, locator, times=1, clicks_delay=0):
+        element = self.wait.until(EC.visibility_of_element_located(locator))
+        for _ in range(times):
+            element.click()
+            time.sleep(clicks_delay)
 
     def scroll_into_and_click_on_element(self, element_locator):
         self.__scroll_into_element(element_locator)
@@ -208,12 +218,7 @@ class TestUrbanRoutes:
         routes_page.add_new_card(data.card_number, data.card_code)
         routes_page.set_message_for_the_driver(data.message_for_driver)
         routes_page.click_on_checkbox_blanket_and_handkerchiefs()
-
-    def test_one(self):
-        self.driver.maximize_window()
-        self.driver.get(data.urban_routes_url)
-        routes_page = UrbanRoutesPage(driver=self.driver, search_element_timeout=5, visual_review_timeout=1)
-        routes_page.click_on_checkbox_blanket_and_handkerchiefs()
+        routes_page.clicks_on_icecream_increase_counter_btn(times=2, clicks_delay=1)
 
 
     @classmethod
