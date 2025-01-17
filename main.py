@@ -75,6 +75,7 @@ class UrbanRoutesPage:
 
     # Localizadores de los checkbox y los contadores para pedir mantas, panuelos y helados
     blanket_n_handkerchiefs_slider_locator = (By.XPATH, '//div[@class="r-sw-label" and text()="Manta y pañuelos"]/following-sibling::div[@class="r-sw"]//input[@type="checkbox"]/following-sibling::span')
+    icecream_counter_field_locator = (By.XPATH, '//div[@class="r-counter-container"]/div[text()="Helado"]/following-sibling::div[@class="r-counter"]//div[@class="counter-value"]')
     icecream_increase_counter_btn_locator = (By.XPATH, '//div[@class="r-counter-container"]/div[text()="Helado"]/following-sibling::div[@class="r-counter"]//div[@class="counter-plus" and text()="+"]')
 
     # Localizadores del boton que inicia la busqueda de un conductor
@@ -186,6 +187,8 @@ class UrbanRoutesPage:
                                               """)
 
         return checkbox.get_property('checked')
+    def get_icecream_counter_number(self):
+        return self.__get_element_text(self.icecream_counter_field_locator)
     def clicks_on_icecream_increase_counter_btn(self, times=1, clicks_delay=0):
         self.__click_on_element_multiple_times(self.icecream_increase_counter_btn_locator, times, clicks_delay)
 
@@ -452,6 +455,40 @@ class TestUrbanRoutes:
         blanket_and_handkerchiefs_is_checked = routes_page.check_if_checkbox_blanket_and_handkerchiefs_is_checked()
 
         assert blanket_and_handkerchiefs_is_checked, 'El checkbox de mantas y panuelos deberia estar seleccionado'
+
+    # 7.- Comprobacion de la cantidad de helados pedidos
+    def test_set_icecream_quantity(self, search_timeout=SEARCH_TIMEOUT,
+                                                           visual_timeout=VISUAL_TIME0UT):
+        # Maximiza la ventana del navegador para una mejor visualización de la prueba.
+        self.driver.maximize_window()
+
+        # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
+        self.driver.get(data.urban_routes_url)
+
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
+        # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
+        routes_page.set_route(data.address_from, data.address_to)
+
+        # Hace clic en el botón "Llamar un taxi".
+        routes_page.click_on_call_a_taxi_btn()
+
+        # Hace clic en la tarjeta de tarifa "comfort" para seleccionar el tipo de tarifa.
+        routes_page.click_on_comfort_tariff_card()
+
+        # Hace clic en el botón para aumentar el contador de helados dos veces, sin retraso entre clics.
+        routes_page.clicks_on_icecream_increase_counter_btn(times=2, clicks_delay=0)
+
+        # Recupera el numero que aparece en el campo de contador de helados
+        actual_icecream_counter_number = routes_page.get_icecream_counter_number()
+
+        expected_icecream_counter_number = '2'
+
+        assert  expected_icecream_counter_number == actual_icecream_counter_number, f'El numero de helados pedidos deberia ser "{expected_icecream_counter_number}"'
+
+
 
 
 
