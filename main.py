@@ -6,8 +6,7 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-
-from data import phone_number
+from selenium.common.exceptions import TimeoutException
 
 
 # Funciones Útiles
@@ -197,8 +196,11 @@ class UrbanRoutesPage:
         self.__click_on_element(self.call_the_vehicle_btn_locator)
 
     # Métodos para comprobar que el modal de busqueda de vehiculo aparece
-    def check_if_appears_searching_vehicle_modal(self, timeout):
-        self.__check_if_appears_element(self.searching_vehicle_modal_locator, timeout)
+    def check_if_appears_searching_vehicle_modal(self, search_timeout=5, start_search_at=1):
+        # El start_search_at es para demorar el inicio de la busqueda x segundos, ya que hay casos en los que el elemento
+        # aparece, pero desaparece inmediatamente, ocasionando que selenium lo detecte y lo marque como que si esta presente
+        # cuando en realidad puede que lo querramos presente mas tiempo
+        return self.__check_if_appears_element(self.searching_vehicle_modal_locator, search_timeout, start_search_at)
 
     # Métodos para obtener la informacion del conductor encontrado
     def get_driver_rating(self):
@@ -243,8 +245,17 @@ class UrbanRoutesPage:
             element.click()
             time.sleep(clicks_delay)
 
-    def __check_if_appears_element(self, element_locator, timeout=5):
-        return WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(element_locator))
+    def __check_if_appears_element(self, element_locator, search_timeout=5, start_search_at=1):
+        # El start_search_at es para demorar el inicio de la busqueda x segundos, ya que hay casos en los que el elemento
+        # aparece, pero desaparece inmediatamente, ocasionando que selenium lo detecte y lo marque como que si esta presente
+        # cuando en realidad puede que lo querramos presente mas tiempo
+        time.sleep(start_search_at)
+        try:
+            WebDriverWait(self.driver, search_timeout).until(EC.visibility_of_element_located(element_locator))
+        except TimeoutException:
+            return False
+        return True
+
 
     def scroll_into_and_click_on_element(self, element_locator):
         self.__scroll_into_element(element_locator)
@@ -561,7 +572,9 @@ class TestUrbanRoutes:
         routes_page.click_on_call_the_vehicle_btn()
 
         # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 10 segundos.
-        routes_page.check_if_appears_searching_vehicle_modal(timeout=10)
+        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, start_search_at=2)
+
+        assert modal_is_present, 'El modal que muestra la informacion de buscar un taxi deberia aparecer y permanecer mostrandose hasta que el tiempo de espera expire'
 
     # 9.- Comprobacion de que aparece la informacion del conductor en el modal
     def test_driver_info_appears(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
@@ -612,7 +625,9 @@ class TestUrbanRoutes:
         routes_page.click_on_call_the_vehicle_btn()
 
         # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 10 segundos.
-        routes_page.check_if_appears_searching_vehicle_modal(timeout=10)
+        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, start_search_at=2)
+
+        assert modal_is_present, 'El modal que muestra la informacion de buscar un taxi deberia aparecer y permanecer mostrandose hasta que el tiempo de espera expire'
 
         # Espera la información del conductor con un tiempo adicional de 3 segundos.
         routes_page.wait_for_driver_info(additional_secs=3)
@@ -687,8 +702,10 @@ class TestUrbanRoutes:
         # Hace clic en el botón para llamar al vehículo.
         routes_page.click_on_call_the_vehicle_btn()
 
-        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 10 segundos.
-        routes_page.check_if_appears_searching_vehicle_modal(timeout=10)
+        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 4 segundos.
+        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, start_search_at=2)
+
+        assert modal_is_present, 'El modal que muestra la informacion de buscar un taxi deberia aparecer y permanecer mostrandose hasta que el tiempo de espera expire'
 
         # Espera la información del conductor con un tiempo adicional de 3 segundos.
         routes_page.wait_for_driver_info(additional_secs=3)
