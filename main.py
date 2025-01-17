@@ -603,6 +603,10 @@ class TestUrbanRoutes:
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
 
+        # Limpia el almacenamiento local
+        self.driver.execute_script("window.localStorage.clear();")
+
+
         # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
         self.driver.get(data.urban_routes_url)
 
