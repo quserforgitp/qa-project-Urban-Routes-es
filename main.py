@@ -215,16 +215,13 @@ class UrbanRoutesPage:
     def __click_on_element(self, element_locator):
         self.wait.until(EC.visibility_of_element_located(element_locator)).click()
         self.wait_for_visual_review()
-
     def __scroll_into_element(self, element_locator):
         element = self.wait.until(EC.visibility_of_element_located(element_locator))
         self.driver.execute_script("arguments[0].scrollIntoView();", element)
         self.wait_for_visual_review()
-
     def __set_element_text(self, element_locator, text):
         self.wait.until(EC.visibility_of_element_located(element_locator)).send_keys(text)
         self.wait_for_visual_review()
-
     def __get_element_text(self, element_locator):
         element = self.wait.until(EC.visibility_of_element_located(element_locator))
 
@@ -238,13 +235,11 @@ class UrbanRoutesPage:
             return text
 
         return ""
-
     def __click_on_element_multiple_times(self, locator, times=1, clicks_delay=0):
         element = self.wait.until(EC.visibility_of_element_located(locator))
         for _ in range(times):
             element.click()
             time.sleep(clicks_delay)
-
     def __check_if_appears_element(self, element_locator, search_timeout=5, start_search_at=1):
         # El start_search_at es para demorar el inicio de la busqueda x segundos, ya que hay casos en los que el elemento
         # aparece, pero desaparece inmediatamente, ocasionando que selenium lo detecte y lo marque como que si esta presente
@@ -260,17 +255,14 @@ class UrbanRoutesPage:
     def scroll_into_and_click_on_element(self, element_locator):
         self.__scroll_into_element(element_locator)
         self.__click_on_element(element_locator)
-
     def wait_for_visual_review(self):
         time.sleep(self.VISUAL_REVIEW_TIMEOUT)
-
     def wait_for_driver_info(self, additional_secs=1):
         time.sleep(additional_secs)
 
         time_str = self.__get_element_text(self.driver_arrival_time_label_locator)
         arrival_time_in_seconds = parse_to_seconds(time_str)
         time.sleep(arrival_time_in_seconds + additional_secs)
-
     def clear_local_storage(self):
         self.driver.execute_script("window.localStorage.clear();")
 
