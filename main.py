@@ -457,8 +457,7 @@ class TestUrbanRoutes:
         assert blanket_and_handkerchiefs_is_checked, 'El checkbox de mantas y panuelos deberia estar seleccionado'
 
     # 7.- Comprobacion de la cantidad de helados pedidos
-    def test_set_icecream_quantity(self, search_timeout=SEARCH_TIMEOUT,
-                                                           visual_timeout=VISUAL_TIME0UT):
+    def test_set_icecream_quantity(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
 
@@ -487,6 +486,54 @@ class TestUrbanRoutes:
         expected_icecream_counter_number = '2'
 
         assert  expected_icecream_counter_number == actual_icecream_counter_number, f'El numero de helados pedidos deberia ser "{expected_icecream_counter_number}"'
+
+    # 8.- Comprobacion de que aparece el modal donde se muestra la informacion de busqueda del taxi
+    def test_searching_taxi_modal_appears(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
+        # Maximiza la ventana del navegador para una mejor visualización de la prueba.
+        self.driver.maximize_window()
+
+        # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
+        self.driver.get(data.urban_routes_url)
+
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
+        # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
+        routes_page.set_route(data.address_from, data.address_to)
+
+        # Hace clic en el botón "Llamar un taxi".
+        routes_page.click_on_call_a_taxi_btn()
+
+        # Hace clic en la tarjeta de tarifa "comfort" para seleccionar el tipo de tarifa.
+        routes_page.click_on_comfort_tariff_card()
+
+        # Hace clic en el botón para ingresar el número de teléfono del pasajero.
+        routes_page.click_on_phone_number_btn()
+
+        # Establece el número de teléfono proporcionado en los datos de prueba.
+        routes_page.set_phone_number(data.phone_number)
+
+        # Hace clic en el botón de envío del número de teléfono.
+        routes_page.click_on_submit_phone_number_btn()
+
+        # Recupera el código de verificación del teléfono desde el sitio web.
+        phone_code = retrieve_phone_code(self.driver)
+
+        # Establece el código de teléfono obtenido anteriormente.
+        routes_page.set_phone_code(phone_code)
+
+        # Hace clic en el botón de envío del código de teléfono.
+        routes_page.click_on_submit_phone_code_btn()
+
+        # Añade una nueva tarjeta de pago con el número de tarjeta y código proporcionados en los datos de prueba.
+        routes_page.add_new_card(data.card_number, data.card_code)
+
+        # Hace clic en el botón para llamar al vehículo.
+        routes_page.click_on_call_the_vehicle_btn()
+
+        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 10 segundos.
+        routes_page.check_if_appears_searching_vehicle_modal(timeout=10)
 
 
 
