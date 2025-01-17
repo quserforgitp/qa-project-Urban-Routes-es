@@ -260,6 +260,9 @@ class UrbanRoutesPage:
         arrival_time_in_seconds = parse_to_seconds(time_str)
         time.sleep(arrival_time_in_seconds + additional_secs)
 
+    def clear_local_storage(self):
+        self.driver.execute_script("window.localStorage.clear();")
+
 
 
 
@@ -303,6 +306,10 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -329,6 +336,9 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -361,6 +371,10 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -414,6 +428,10 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -439,6 +457,9 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -468,6 +489,9 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -499,6 +523,10 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -547,6 +575,9 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -603,10 +634,6 @@ class TestUrbanRoutes:
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
 
-        # Limpia el almacenamiento local
-        self.driver.execute_script("window.localStorage.clear();")
-
-
         # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
         self.driver.get(data.urban_routes_url)
 
@@ -614,6 +641,10 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(driver=self.driver,
                                       search_element_timeout=search_timeout,
                                       visual_review_timeout=visual_timeout)
+
+        # Limpia el almacenamiento local
+        routes_page.clear_local_storage()
+
         # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
         routes_page.set_route(data.address_from, data.address_to)
 
