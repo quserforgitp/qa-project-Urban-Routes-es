@@ -7,6 +7,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+from data import phone_number
+
 
 # Funciones Útiles
 # no modificar
@@ -123,6 +125,8 @@ class UrbanRoutesPage:
         self.scroll_into_and_click_on_element(self.phone_number_btn_locator)
     def set_phone_number(self, phone_number):
         self.__set_element_text(self.phone_number_field_locator, phone_number)
+    def get_phone_number(self):
+        return self.__get_element_text(self.phone_number_field_locator)
     def click_on_submit_phone_number_btn(self):
         self.__click_on_element(self.phone_number_submit_btn_locator)
     def click_on_submit_phone_code_btn(self):
@@ -285,6 +289,37 @@ class TestUrbanRoutes:
         selected_tariff = routes_page.get_selected_tariff()
 
         assert selected_tariff == 'Comfort', 'La tarifa seleccionada debería ser "Comfort"'
+
+    def test_set_phone_number(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
+        # Maximiza la ventana del navegador para una mejor visualización de la prueba.
+        self.driver.maximize_window()
+
+        # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
+        self.driver.get(data.urban_routes_url)
+
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
+        # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
+        routes_page.set_route(data.address_from, data.address_to)
+
+        # Hace clic en el botón "Llamar un taxi".
+        routes_page.click_on_call_a_taxi_btn()
+
+        # Hace clic en la tarjeta de tarifa "comfort" para seleccionar el tipo de tarifa.
+        routes_page.click_on_comfort_tariff_card()
+
+        # Hace clic en el botón para ingresar el número de teléfono del pasajero.
+        routes_page.click_on_phone_number_btn()
+
+        # Establece el número de teléfono proporcionado en los datos de prueba.
+        routes_page.set_phone_number(data.phone_number)
+
+        # Recupera el numero de telefono que aparece en el elemento
+        setted_phone_number = routes_page.get_phone_number()
+
+        assert setted_phone_number == data.phone_number, f'El numero de telefono deberia ser "{data.phone_number}"'
 
     def test_call_a_taxi(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
