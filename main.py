@@ -74,7 +74,7 @@ class UrbanRoutesPage:
     message_for_the_driver_field_locator = (By.XPATH, '//input[@id="comment" and @placeholder="Traiga un aperitivo"]')
 
     # Localizadores de los checkbox y los contadores para pedir mantas, panuelos y helados
-    blanket_n_handkerchiefs_checkbox_locator = (By.XPATH, '//div[@class="r-sw-label" and text()="Manta y pañuelos"]/following-sibling::div[@class="r-sw"]//input[@type="checkbox"]/following-sibling::span')
+    blanket_n_handkerchiefs_slider_locator = (By.XPATH, '//div[@class="r-sw-label" and text()="Manta y pañuelos"]/following-sibling::div[@class="r-sw"]//input[@type="checkbox"]/following-sibling::span')
     icecream_increase_counter_btn_locator = (By.XPATH, '//div[@class="r-counter-container"]/div[text()="Helado"]/following-sibling::div[@class="r-counter"]//div[@class="counter-plus" and text()="+"]')
 
     # Localizadores del boton que inicia la busqueda de un conductor
@@ -169,7 +169,23 @@ class UrbanRoutesPage:
 
     # Métodos para interactuar con el checkbox de manta y panuelos, y el contador de helados
     def click_on_checkbox_blanket_and_handkerchiefs(self):
-        self.scroll_into_and_click_on_element(self.blanket_n_handkerchiefs_checkbox_locator)
+        self.scroll_into_and_click_on_element(self.blanket_n_handkerchiefs_slider_locator)
+    def check_if_checkbox_blanket_and_handkerchiefs_is_checked(self):
+        # es necesario porque selenium no lo encuentra ya que sus dimensiones son 0x0
+        checkbox = self.driver.execute_script("""
+                                                const expectedLabelText = "Manta y pañuelos"
+                                                const containers = document.querySelectorAll('div.r-sw-container');
+                                                let checkbox = null;
+                                                
+                                                containers.forEach( (container) => {
+                                                    const label = container.querySelector('.r-sw-label');
+                                                    const currentlabelText = label.textContent;
+                                                    if (expectedLabelText === currentlabelText) checkbox = container.querySelector('.switch-input');
+                                                });
+                                                return checkbox;
+                                              """)
+
+        return checkbox.get_property('checked')
     def clicks_on_icecream_increase_counter_btn(self, times=1, clicks_delay=0):
         self.__click_on_element_multiple_times(self.icecream_increase_counter_btn_locator, times, clicks_delay)
 
@@ -407,6 +423,41 @@ class TestUrbanRoutes:
         # Recupera el mensaje para el conductor desde el campo
         actual_message = routes_page.get_message_for_the_driver()
         assert actual_message == data.message_for_driver, f'El mensaje para el conductor deberia ser "{data.message_for_driver}"'
+
+    # 6.- Comprobacion de la activacion del checkbox de manta y panuelos
+    def test_checkbox_blanket_and_handkerchiefs_activation(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
+        # Maximiza la ventana del navegador para una mejor visualización de la prueba.
+        self.driver.maximize_window()
+
+        # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
+        self.driver.get(data.urban_routes_url)
+
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
+        # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
+        routes_page.set_route(data.address_from, data.address_to)
+
+        # Hace clic en el botón "Llamar un taxi".
+        routes_page.click_on_call_a_taxi_btn()
+
+        # Hace clic en la tarjeta de tarifa "comfort" para seleccionar el tipo de tarifa.
+        routes_page.click_on_comfort_tariff_card()
+
+        # Hace clic en la casilla de verificación para manta y pañuelos.
+        routes_page.click_on_checkbox_blanket_and_handkerchiefs()
+
+        # Recupera el estado del checkbox de mantas y panuelos
+        blanket_and_handkerchiefs_is_checked = routes_page.check_if_checkbox_blanket_and_handkerchiefs_is_checked()
+
+        assert blanket_and_handkerchiefs_is_checked, 'El checkbox de mantas y panuelos deberia estar seleccionado'
+
+
+
+
+
+
 
 
     # .- Comprobacion del proceso completo de llamar un taxi
