@@ -253,6 +253,7 @@ class TestUrbanRoutes:
         options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
         cls.driver = webdriver.Chrome(options=options)
 
+    # 1.- Comprobacion de la configuracion de la direccion
     def test_set_route(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         self.driver.maximize_window()
         self.driver.get(data.urban_routes_url)
@@ -265,6 +266,7 @@ class TestUrbanRoutes:
         assert routes_page.get_from() == address_from
         assert routes_page.get_to() == address_to
 
+    # 2.- Comprobacion de la seleccion de la tarifa 'Comfort'
     def test_set_tariff(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
@@ -290,6 +292,7 @@ class TestUrbanRoutes:
 
         assert selected_tariff == 'Comfort', 'La tarifa seleccionada debería ser "Comfort"'
 
+    # 3.- Comprobacion del numero de telefono introducido
     def test_set_phone_number(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
@@ -321,6 +324,7 @@ class TestUrbanRoutes:
 
         assert setted_phone_number == data.phone_number, f'El numero de telefono deberia ser "{data.phone_number}"'
 
+    # 4.- Comprobacion del proceso completo de llamar un taxi
     def test_call_a_taxi(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
         # Maximiza la ventana del navegador para una mejor visualización de la prueba.
         self.driver.maximize_window()
