@@ -164,6 +164,8 @@ class UrbanRoutesPage:
     # Métodos para agregar un comentario para el conductor
     def set_message_for_the_driver(self, comment):
         self.__set_element_text(self.message_for_the_driver_field_locator, comment)
+    def get_message_for_the_driver(self):
+        return self.__get_element_text(self.message_for_the_driver_field_locator)
 
     # Métodos para interactuar con el checkbox de manta y panuelos, y el contador de helados
     def click_on_checkbox_blanket_and_handkerchiefs(self):
@@ -380,6 +382,32 @@ class TestUrbanRoutes:
         # Recupera el codigo (CVV) de la tarjeta que aparece en el campo
         actual_card_code = routes_page.get_card_code()
         assert actual_card_code == data.card_code, f'El codigo (CVV) de la tarjeta deberia ser "{data.card_code}"'
+
+    # 5.- Comprobacion del mensaje introducido para el conductor
+    def test_set_message_for_the_driver(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
+        # Maximiza la ventana del navegador para una mejor visualización de la prueba.
+        self.driver.maximize_window()
+
+        # Abre la página de Urban.Routes desde la URL almacenada en los datos de prueba.
+        self.driver.get(data.urban_routes_url)
+
+        # Inicializa la página de Urban.Routes con el tiempo de espera para los elementos de búsqueda y para la revisión visual.
+        routes_page = UrbanRoutesPage(driver=self.driver,
+                                      search_element_timeout=search_timeout,
+                                      visual_review_timeout=visual_timeout)
+        # Establece la ruta de la prueba, con la dirección de origen y destino proporcionadas en los datos.
+        routes_page.set_route(data.address_from, data.address_to)
+
+        # Hace clic en el botón "Llamar un taxi".
+        routes_page.click_on_call_a_taxi_btn()
+
+        # Establece el mensaje para el conductor, tal como está en los datos de prueba.
+        routes_page.set_message_for_the_driver(data.message_for_driver)
+
+        # Recupera el mensaje para el conductor desde el campo
+        actual_message = routes_page.get_message_for_the_driver()
+        assert actual_message == data.message_for_driver, f'El mensaje para el conductor deberia ser "{data.message_for_driver}"'
+
 
     # .- Comprobacion del proceso completo de llamar un taxi
     def test_call_a_taxi(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
