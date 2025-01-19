@@ -107,9 +107,7 @@ class UrbanRoutesPage:
         return  self.__get_element_text(self.to_field_locator)
     def set_route(self, address_from, address_to):
         self.set_from(address_from)
-        self.wait_for_visual_review()
         self.set_to(address_to)
-        self.wait_for_visual_review()
     def click_on_call_a_taxi_btn(self):
         self.__click_on_element(self.call_a_taxi_btn_locator)
 
@@ -188,19 +186,20 @@ class UrbanRoutesPage:
         return checkbox.get_property('checked')
     def get_icecream_counter_number(self):
         return self.__get_element_text(self.icecream_counter_field_locator)
-    def clicks_on_icecream_increase_counter_btn(self, times=1, clicks_delay=0):
-        self.__click_on_element_multiple_times(self.icecream_increase_counter_btn_locator, times, clicks_delay)
+    def clicks_on_icecream_increase_counter_btn(self, times=1):
+        self.__click_on_element_multiple_times(self.icecream_increase_counter_btn_locator, times)
 
     # Métodos para iniciar la busqueda de un conductor
     def click_on_call_the_vehicle_btn(self):
         self.__click_on_element(self.call_the_vehicle_btn_locator)
 
     # Métodos para comprobar que el modal de busqueda de vehiculo aparece
-    def check_if_appears_searching_vehicle_modal(self, search_timeout=5, start_search_at=1):
-        # El start_search_at es para demorar el inicio de la busqueda x segundos, ya que hay casos en los que el elemento
-        # aparece, pero desaparece inmediatamente, ocasionando que selenium lo detecte y lo marque como que si esta presente
+    def check_if_appears_searching_vehicle_modal(self, search_timeout=5, minimum_visibility_time=1):
+        # El minimum_element_visibility_time es para comprobar que el elemento se muestre en pantalla como minimo x segundos,
+        # ya que hay casos en los que el elemento aparece, pero desaparece inmediatamente,
+        # ocasionando que selenium lo detecte y lo marque como que si esta presente
         # cuando en realidad puede que lo querramos presente mas tiempo
-        return self.__check_if_appears_element(self.searching_vehicle_modal_locator, search_timeout, start_search_at)
+        return self.__check_if_appears_element(self.searching_vehicle_modal_locator, search_timeout, minimum_visibility_time)
 
     # Métodos para obtener la informacion del conductor encontrado
     def get_driver_rating(self):
@@ -213,15 +212,18 @@ class UrbanRoutesPage:
 
     # Metodos auxiliares para interactuar con los elementos de la pagina
     def __click_on_element(self, element_locator):
-        self.wait.until(EC.visibility_of_element_located(element_locator)).click()
-        self.wait_for_visual_review()
+        self.wait.until(EC.element_to_be_clickable(element_locator)).click()
+        self.confirm_and_trigger_visual_review_timeout()
+
     def __scroll_into_element(self, element_locator):
         element = self.wait.until(EC.visibility_of_element_located(element_locator))
         self.driver.execute_script("arguments[0].scrollIntoView();", element)
-        self.wait_for_visual_review()
+        self.confirm_and_trigger_visual_review_timeout()
+
+
     def __set_element_text(self, element_locator, text):
         self.wait.until(EC.visibility_of_element_located(element_locator)).send_keys(text)
-        self.wait_for_visual_review()
+        self.confirm_and_trigger_visual_review_timeout()
     def __get_element_text(self, element_locator):
         element = self.wait.until(EC.visibility_of_element_located(element_locator))
 
@@ -235,34 +237,50 @@ class UrbanRoutesPage:
             return text
 
         return ""
-    def __click_on_element_multiple_times(self, locator, times=1, clicks_delay=0):
-        element = self.wait.until(EC.visibility_of_element_located(locator))
+    def __click_on_element_multiple_times(self, locator, times=1):
+        element = self.wait.until(EC.element_to_be_clickable(locator))
         for _ in range(times):
             element.click()
-            time.sleep(clicks_delay)
-    def __check_if_appears_element(self, element_locator, search_timeout=5, start_search_at=1):
-        # El start_search_at es para demorar el inicio de la busqueda x segundos, ya que hay casos en los que el elemento
-        # aparece, pero desaparece inmediatamente, ocasionando que selenium lo detecte y lo marque como que si esta presente
+
+        self.confirm_and_trigger_visual_review_timeout()
+    def __check_if_appears_element(self, element_locator, search_timeout=5, minimum_element_visibility_time=2):
+        # El minimum_element_visibility_time es para comprobar que el elemento se muestre en pantalla como minimo x segundos,
+        # ya que hay casos en los que el elemento aparece, pero desaparece inmediatamente,
+        # ocasionando que selenium lo detecte y lo marque como que si esta presente
         # cuando en realidad puede que lo querramos presente mas tiempo
-        time.sleep(start_search_at)
+
+        # si no requerimos comprobar que el elemento esta presente como minimo x segundos
+        if minimum_element_visibility_time == 0:
+            try:
+                WebDriverWait(self.driver, search_timeout).until(EC.visibility_of_element_located(element_locator))
+            except TimeoutException:
+                return False
+            return True
+
+        initial_time = time.time()
+
+        # si requerimos comprobar que el elemento este presente como minimo x cantidad de segundos
         try:
-            WebDriverWait(self.driver, search_timeout).until(EC.visibility_of_element_located(element_locator))
+            # comprobar permanencia del elemento localizandolo
+            while time.time() - initial_time < minimum_element_visibility_time:
+                WebDriverWait(self.driver, search_timeout).until(EC.visibility_of_element_located(element_locator))
         except TimeoutException:
             return False
         return True
-
 
     def scroll_into_and_click_on_element(self, element_locator):
         self.__scroll_into_element(element_locator)
         self.__click_on_element(element_locator)
     def wait_for_visual_review(self):
         time.sleep(self.VISUAL_REVIEW_TIMEOUT)
+    def confirm_and_trigger_visual_review_timeout(self):
+        if self.VISUAL_REVIEW_TIMEOUT > 0:
+            self.wait_for_visual_review()
     def wait_for_driver_info(self, additional_secs=1):
-        time.sleep(additional_secs)
-
         time_str = self.__get_element_text(self.driver_arrival_time_label_locator)
         arrival_time_in_seconds = parse_to_seconds(time_str)
-        time.sleep(arrival_time_in_seconds + additional_secs)
+        total_timeout = arrival_time_in_seconds + additional_secs
+        WebDriverWait(self.driver, total_timeout).until(EC.visibility_of_element_located(self.driver_name_field_locator))
     def clear_local_storage(self):
         self.driver.execute_script("window.localStorage.clear();")
 
@@ -273,8 +291,8 @@ class TestUrbanRoutes:
 
     driver = None
 
-    SEARCH_TIMEOUT = 5
-    VISUAL_TIME0UT = 0
+    SEARCH_TIMEOUT = 5 # tiempo de espera maximo para localizar elementos (por lo menos VISUAL_TIMEOUT + 1)
+    VISUAL_TIME0UT = 0 # tiempo para visualizacion de acciones en pantalla
 
     @classmethod
     def setup_class(cls):
@@ -505,7 +523,7 @@ class TestUrbanRoutes:
         routes_page.click_on_comfort_tariff_card()
 
         # Hace clic en el botón para aumentar el contador de helados dos veces, sin retraso entre clics.
-        routes_page.clicks_on_icecream_increase_counter_btn(times=2, clicks_delay=0)
+        routes_page.clicks_on_icecream_increase_counter_btn(times=2)
 
         # Recupera el numero que aparece en el campo de contador de helados
         actual_icecream_counter_number = routes_page.get_icecream_counter_number()
@@ -563,8 +581,8 @@ class TestUrbanRoutes:
         # Hace clic en el botón para llamar al vehículo.
         routes_page.click_on_call_the_vehicle_btn()
 
-        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 4 segundos.
-        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, start_search_at=2)
+        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 2 segundos y comprobando que siga presente por al menos 2 seg.
+        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, minimum_visibility_time=2)
 
         assert modal_is_present, 'El modal que muestra la informacion de buscar un taxi deberia aparecer y permanecer mostrandose hasta que el tiempo de espera expire'
 
@@ -616,8 +634,8 @@ class TestUrbanRoutes:
         # Hace clic en el botón para llamar al vehículo.
         routes_page.click_on_call_the_vehicle_btn()
 
-        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 4 segundos.
-        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, start_search_at=2)
+        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 2 segundos y comprobando que siga presente por al menos 2 seg.
+        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, minimum_visibility_time=2)
 
         assert modal_is_present, 'El modal que muestra la informacion de buscar un taxi deberia aparecer y permanecer mostrandose hasta que el tiempo de espera expire'
 
@@ -689,13 +707,13 @@ class TestUrbanRoutes:
         routes_page.click_on_checkbox_blanket_and_handkerchiefs()
 
         # Hace clic en el botón para aumentar el contador de helados dos veces, sin retraso entre clics.
-        routes_page.clicks_on_icecream_increase_counter_btn(times=2, clicks_delay=0)
+        routes_page.clicks_on_icecream_increase_counter_btn(times=2)
 
         # Hace clic en el botón para llamar al vehículo.
         routes_page.click_on_call_the_vehicle_btn()
 
-        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 4 segundos.
-        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, start_search_at=2)
+        # Verifica si aparece el modal de "buscando vehículo", con un tiempo de espera máximo de 2 segundos y comprobando que siga presente por al menos 2 seg.
+        modal_is_present = routes_page.check_if_appears_searching_vehicle_modal(search_timeout=2, minimum_visibility_time=2)
 
         assert modal_is_present, 'El modal que muestra la informacion de buscar un taxi deberia aparecer y permanecer mostrandose hasta que el tiempo de espera expire'
 
