@@ -192,7 +192,13 @@ python -m pytest main.TestUrbanRoutes
 ---
 
 ## 🛠️ **Extensiones y Mejoras Futuras**
-- Agregar más pruebas metodos privados que faciliten la creacion de otros metodos que interactuen con los elementos de la pagina.
-- Generar reportes de pruebas con herramientas como pytest-html.
 
----
+- Agregar más pruebas a métodos privados que faciliten la creación de otros métodos que interactúen con los elementos de la página.  
+- Generar reportes de pruebas con herramientas como `pytest-html`.  
+- **Agregar al README**:
+  - Explicación sobre cómo utilizar los *timeouts* globales, aclarando que el `search_timeout` debe ser al menos 1 segundo mayor que el `visual_timeout` para evitar problemas.  
+    - Ejemplo: Si asignamos 2 segundos a `search_timeout` y 2 segundos a `visual_timeout`, puede ocurrir que el proceso de búsqueda intente ejecutarse mientras el proceso visual aún está activo.  
+    - Alternativa: Definir `search_timeout` como `visual_timeout + segundos`.
+- Agregar manejo de excepciones para casos donde no se encuentran elementos por cualquier razón.  
+- Renombrar los localizadores de elementos, métodos, etc., para alinearlos con la nomenclatura utilizada en la documentación de la aplicación.  
+- Determinar si es mejor **hardcodear** en `search_timeout` la expresión `segundos + visual_timeout`.  
