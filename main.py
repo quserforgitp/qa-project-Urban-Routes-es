@@ -62,7 +62,8 @@ class UrbanRoutesPage:
     phone_code_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Confirmar"]')
 
     # Localizadores del campo para agregar metodo de pago
-    payment_method_btn_locator = (By.XPATH, '//div[contains(@class, "pp-button")]/div[@class="pp-text" and text()="Método de pago"]')
+    payment_method_btn_locator = (By.XPATH, '//div[contains(@class, "pp-button")]/div[@class="pp-text"]')
+    payment_method_setted_on_payment_method_btn = (By.XPATH, '//div[contains(@class, "pp-value")]/div[@class="pp-value-text"]')
     add_card_btn_locator = (By.XPATH, '//div[@class="pp-title" and text()="Agregar tarjeta"]')
     card_number_field_locator = (By.XPATH, '//div[@class="card-number-input"]/input[@id="number" and @placeholder="1234 4321 1408"]')
     card_code_field_locator = (By.XPATH, '//div[@class="card-code-input"]/input[@id="code" and @placeholder="12"]')
@@ -137,6 +138,8 @@ class UrbanRoutesPage:
     # Métodos para interactuar con los elementos de la tarjeta
     def click_on_payment_method_btn(self):
         self.__click_on_element(self.payment_method_btn_locator)
+    def get_type_of_setted_payment_method_from_payment_method_btn(self):
+            return self.__get_element_text(self.payment_method_setted_on_payment_method_btn)
     def click_on_add_card_btn(self):
         self.__click_on_element(self.add_card_btn_locator)
     def set_card_number(self, card_number):
@@ -447,15 +450,24 @@ class TestUrbanRoutes:
         routes_page.click_on_payment_method_btn()
         routes_page.click_on_add_card_btn()
         routes_page.set_card_number(data.card_number)
-        routes_page.set_card_code(data.card_code)
-
         # Recupera el numero de la tarjeta que aparece en el campo
         actual_card_number = routes_page.get_card_number()
-        assert actual_card_number == data.card_number, f'El numero de la tarjeta deberia ser "{data.card_number}"'
+        assert actual_card_number == data.card_number, f'El numero de la tarjeta en el input del modal para agregar tarjetas deberia ser "{data.card_number}"'
 
+        routes_page.set_card_code(data.card_code)
         # Recupera el codigo (CVV) de la tarjeta que aparece en el campo
         actual_card_code = routes_page.get_card_code()
-        assert actual_card_code == data.card_code, f'El codigo (CVV) de la tarjeta deberia ser "{data.card_code}"'
+        assert actual_card_code == data.card_code, f'El codigo (CVV) de la tarjeta en el input del modal para agregar tarjetas deberia ser "{data.card_code}"'
+
+        # Click en el boton Confirmar del modal para agregar en tarjetas
+        routes_page.click_on_submit_new_card_btn(send_tab_to_remove_focus=True)
+        # Click en la equis para cerrar el modal para agregar tarjetas
+        routes_page.click_on_close_add_card_modal_btn()
+
+        setted_text_on_payment_method_btn = routes_page.get_type_of_setted_payment_method_from_payment_method_btn()
+
+        assert setted_text_on_payment_method_btn == 'Tarjeta' , f'El metodo de pago establecido en el campo de Metodo de Pago del panel de configuracion del viaje deberia de ser "Tarjeta"'
+
 
     # 5.- Comprobacion del mensaje introducido para el conductor
     def test_set_message_for_the_driver(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
