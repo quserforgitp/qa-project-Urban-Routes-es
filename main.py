@@ -55,8 +55,8 @@ class UrbanRoutesPage:
     setted_tariff_card_text_locator = (By.XPATH, '//div[@class="tcard active"]//div[@class="tcard-icon"]/following-sibling::div[@class="tcard-title"]')
 
     # Localizadores del campo para agregar numero telefonico
-    phone_number_btn_locator = (By.XPATH, '//div[@class="np-button"]/div[@class="np-text" and text()="Número de teléfono"]')
-    phone_number_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="phone" and @placeholder="+1 xxx xxx xx xx"]')
+    phone_number_btn_locator = (By.XPATH, '//div[contains(@class,"np-button")]/div[@class="np-text"]')
+    phone_number_input_field_on_modal_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="phone" and @placeholder="+1 xxx xxx xx xx"]')
     phone_number_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Siguiente"]')
     phone_code_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="code" and @placeholder="xxxx"]')
     phone_code_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Confirmar"]')
@@ -122,9 +122,11 @@ class UrbanRoutesPage:
     def click_on_phone_number_btn(self):
         self.scroll_into_and_click_on_element(self.phone_number_btn_locator)
     def set_phone_number(self, phone_number):
-        self.__set_element_text(self.phone_number_field_locator, phone_number)
-    def get_phone_number(self):
-        return self.__get_element_text(self.phone_number_field_locator)
+        self.__set_element_text(self.phone_number_input_field_on_modal_locator, phone_number)
+    def get_phone_number_from_field_on_modal(self):
+        return self.__get_element_text(self.phone_number_input_field_on_modal_locator)
+    def get_phone_number_from_btn(self):
+        return self.__get_element_text(self.phone_number_btn_locator)
     def click_on_submit_phone_number_btn(self):
         self.__click_on_element(self.phone_number_submit_btn_locator)
     def click_on_submit_phone_code_btn(self):
@@ -375,10 +377,28 @@ class TestUrbanRoutes:
         # Establece el número de teléfono proporcionado en los datos de prueba.
         routes_page.set_phone_number(data.phone_number)
 
-        # Recupera el numero de telefono que aparece en el elemento
-        setted_phone_number = routes_page.get_phone_number()
+        # Recupera el numero de telefono que aparece en el input dentro del modal
+        setted_phone_number_on_modal_input_field = routes_page.get_phone_number_from_field_on_modal()
 
-        assert setted_phone_number == data.phone_number, f'El numero de telefono deberia ser "{data.phone_number}"'
+        assert setted_phone_number_on_modal_input_field == data.phone_number, f'El numero de telefono en el input dentro del modal deberia ser "{data.phone_number}"'
+
+        # Hace clic en el botón de envío del número de teléfono.
+        routes_page.click_on_submit_phone_number_btn()
+
+        # Recupera el código de verificación del teléfono desde el sitio web.
+        phone_code = retrieve_phone_code(self.driver)
+
+        # Establece el código de teléfono obtenido anteriormente.
+        routes_page.set_phone_code(phone_code)
+
+        # Hace clic en el botón de envío del código de teléfono.
+        routes_page.click_on_submit_phone_code_btn()
+
+        # Recupera el numero de telefono que aparece en el campo del numero de telefono del panel de configuracion del viaje
+        setted_phone_number_on_button = routes_page.get_phone_number_from_btn()
+
+
+        assert setted_phone_number_on_button == data.phone_number, f'El numero de telefono en el campo del numero de telefono del panel de configuracion del viaje deberia ser "{data.phone_number}"'
 
     # 4.- Comprobacion de datos introducidos en los campos cuando se agrega una tarjeta nueva
     def test_set_credit_card_data(self, search_timeout=SEARCH_TIMEOUT, visual_timeout=VISUAL_TIME0UT):
