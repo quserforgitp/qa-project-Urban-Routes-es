@@ -24,13 +24,13 @@ class UrbanRoutesPage:
     By.XPATH, '//div[@class="tcard active"]//div[@class="tcard-icon"]/following-sibling::div[@class="tcard-title"]')
 
     # Localizadores del campo para agregar numero telefonico
-    #TODO class selector
-    phone_number_btn_locator = (By.XPATH, '//div[contains(@class,"np-button")]/div[@class="np-text"]')
+    #Cambio a selector de nombre de clase
+    phone_number_btn_locator = (By.CLASS_NAME, 'np-text')
     phone_number_input_field_on_modal_locator = (
     By.XPATH, '//div[@class="input-container"]/input[@id="phone" and @placeholder="+1 xxx xxx xx xx"]')
     phone_number_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Siguiente"]')
-    #TODO css selector por id
-    phone_code_field_locator = (By.XPATH, '//div[@class="input-container"]/input[@id="code" and @placeholder="xxxx"]')
+    #Cambio a selector de css
+    phone_code_field_locator = (By.CSS_SELECTOR, '#code')
     phone_code_submit_btn_locator = (By.XPATH, '//button[@type="submit" and text()="Confirmar"]')
 
     # Localizadores del campo para agregar metodo de pago
