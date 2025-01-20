@@ -25,9 +25,12 @@ Asegúrate de tener instaladas las siguientes herramientas:
 
 ```
 📂 proyecto
-│-- main.py                        # Archivo principal con pruebas automatizadas
-│-- data.py                        # Datos de prueba y direcciones URL
-│-- requirements.txt               # Contiene la lista de dependencias para poder ejecutar correctamente el proyecto
+       │-- main.py                       # Archivo principal con pruebas automatizadas
+       │-- data.py                       # Datos de prueba y direcciones URL
+       │-- requirements.txt              # Contiene la lista de dependencias para poder ejecutar correctamente el proyecto
+       📂 helpers                       # Contiene codigo para el POM y calculos necesarios
+              │-- pom_helpers.py         # Funciones generalizadas para interactuar con paginas y funciones de espera
+              │-- util_helpers.py        # Funciones utiles para convertir unidades y extraer logs importantes de las paginas
 ```
 
 ---
@@ -201,4 +204,8 @@ python -m pytest main.TestUrbanRoutes
     - Alternativa: Definir `search_timeout` como `visual_timeout + segundos`.
 - Agregar manejo de excepciones para casos donde no se encuentran elementos por cualquier razón.  
 - Renombrar los localizadores de elementos, métodos, etc., para alinearlos con la nomenclatura utilizada en la documentación de la aplicación.  
-- Determinar si es mejor **hardcodear** en `search_timeout` la expresión `segundos + visual_timeout`.  
+- Determinar si es mejor **hardcodear** en `search_timeout` la expresión `segundos + visual_timeout`.
+  
+## 💻🧪 QA Tester Info
+### Nombre:   Helios Barrera Hernández
+### Cohorte:  19
